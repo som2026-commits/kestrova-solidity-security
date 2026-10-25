@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "kestrova": {
+      "type": "http",
+      "url": "https://kestrova.onrender.com/mcp?src=plugin"
+    }
+  }
+}

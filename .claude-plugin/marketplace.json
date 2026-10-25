@@ -1,0 +1,16 @@
+{
+  "name": "kestrova",
+  "owner": {
+    "name": "Kestrova"
+  },
+  "metadata": {
+    "description": "Solidity security tools for coding agents."
+  },
+  "plugins": [
+    {
+      "name": "solidity-security-review",
+      "source": "./solidity-security-review",
+      "description": "Free Slither security preview for Solidity contracts, optional paid line-level report (asks first). Not an audit."
+    }
+  ]
+}
