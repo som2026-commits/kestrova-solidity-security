@@ -1,0 +1,18 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
+  "name": "io.github.som2026-commits/kestrova",
+  "title": "Kestrova: Solidity Vulnerability Scan",
+  "description": "Solidity smart contract vulnerability scan (Slither) for AI agents. Free preview; paid full report.",
+  "version": "0.3.0",
+  "websiteUrl": "https://github.com/som2026-commits/kestrova-solidity-security",
+  "remotes": [
+    {
+      "type": "streamable-http",
+      "url": "https://kestrova.onrender.com/mcp?src=registry"
+    }
+  ],
+  "repository": {
+    "url": "https://github.com/som2026-commits/kestrova-solidity-security",
+    "source": "github"
+  }
+}
