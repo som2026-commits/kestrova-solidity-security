@@ -26,6 +26,22 @@ supports it.
 
 The `?src=` tag only attributes installs in Kestrova's aggregate usage log. The plain `/mcp` URL works the same.
 
+## Use it in your Foundry or Hardhat project
+
+```bash
+node cli/bin/kestrova-scan.mjs --dry-run   # exactly which .sol files would be uploaded (only targets + their imports)
+node cli/bin/kestrova-scan.mjs             # free preview of src/ (Foundry) or contracts/ (Hardhat)
+```
+
+- **5-minute start:** [docs/QUICKSTART.md](docs/QUICKSTART.md).
+- **Every setup:** [docs/INTEGRATIONS.md](docs/INTEGRATIONS.md), covering:
+  - Claude Code, Cursor and VS Code;
+  - Foundry, Hardhat (npm script or Hardhat 2 task) and CI;
+  - an MCP setup check that never pays.
+- **Examples:** [examples/foundry-vault](examples/foundry-vault), [examples/hardhat-token](examples/hardhat-token).
+
+These use each tool's standard extension points; they are not official integrations of those tools' vendors.
+
 ## Tools
 
 - **`scan_solidity_preview` (free):** severity counts and High/Medium detector names. 60 kB / 20 files, 6 per hour per
@@ -105,6 +121,9 @@ Use professional audits and tests for anything holding value.
 - `configs/`: MCP configs for each agent and an `AGENTS.md` snippet.
 - `server.json`: the MCP Registry entry.
 - `scripts/sync_context.py`: regenerates `GEMINI.md` and the snippet from SKILL.md.
+- `cli/`: `kestrova-scan`, a dependency-free Node CLI for Foundry/Hardhat projects (free preview; no payment code).
+- `integrations/`: Hardhat 2 task and `mcp/check_mcp.py`, an MCP setup check that never pays.
+- `docs/`: quickstart and integration guide. `examples/`: Foundry and Hardhat projects, CI workflow, x402 client.
 
 No server code.
 

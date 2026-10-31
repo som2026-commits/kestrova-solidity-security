@@ -1,0 +1,27 @@
+# Example GitHub Actions workflow: free Kestrova preview on pull requests that change Solidity.
+# Copy to .github/workflows/kestrova.yml in YOUR project. It never pays and needs no secrets.
+name: Kestrova preview
+on:
+  pull_request:
+    paths: ["**/*.sol"]
+permissions:
+  contents: read
+jobs:
+  preview:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with: { submodules: recursive }     # Foundry: lib/ dependencies are git submodules
+      - uses: actions/setup-node@v4
+        with: { node-version: 22 }
+      # Hardhat projects: install dependencies so @openzeppelin/... imports resolve
+      - run: '[ -f package-lock.json ] && npm ci --ignore-scripts || true'
+      # Until kestrova-scan is published to npm, fetch the CLI from a pinned copy of this repository.
+      - run: git clone --depth 1 https://github.com/som2026-commits/kestrova-solidity-security /tmp/kestrova
+      - name: Kestrova free preview (fails on High; service/rate-limit errors do not block)
+        run: |
+          set +e
+          node /tmp/kestrova/cli/bin/kestrova-scan.mjs --fail-on high
+          code=$?
+          if [ "$code" = "3" ]; then echo "::warning::Kestrova unavailable or rate-limited; not blocking"; exit 0; fi
+          exit $code

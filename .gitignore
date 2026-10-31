@@ -2,3 +2,7 @@ __pycache__/
 *.pyc
 kestrova-payment.json
 *signer*.json
+node_modules/
+out/
+cache/
+.env

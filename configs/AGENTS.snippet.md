@@ -46,6 +46,9 @@ The first request after the service has been idle can take up to a minute.
 1. **Collect sources.**
    - Build `{"sources": {"path/File.sol": "<source>", ...}}`.
    - Include the contract and every file it imports, including vendored libraries such as OpenZeppelin.
+   - In a Foundry/Hardhat project, `kestrova-scan <File.sol> --bundle out.json` (Kestrova CLI) builds exactly this map
+     from local files: only the contract and its imports, with remappings resolved and no `.env` or configs. Use its
+     `sources`.
    - Limits: 60 kB and 20 files. A `pragma solidity` line is required.
 2. **Free preview.**
    - Call `scan_solidity_preview`, or `POST /preview`.

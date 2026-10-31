@@ -1,0 +1,12 @@
+{
+  "name": "kestrova-hardhat-example",
+  "private": true,
+  "scripts": {
+    "kestrova": "kestrova-scan contracts",
+    "kestrova:ci": "kestrova-scan contracts --fail-on high"
+  },
+  "devDependencies": {
+    "@openzeppelin/contracts": "5.1.0",
+    "hardhat": "^2.22.0"
+  }
+}
