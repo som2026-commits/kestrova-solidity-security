@@ -61,9 +61,12 @@ Optional project rule (`.cursor/rules/solidity-security.mdc`) so the agent check
 description: Solidity security check
 globs: ["**/*.sol"]
 ---
-After creating or changing a Solidity contract, call the kestrova MCP tool scan_solidity_preview with the contract and
-every file it imports. Report severity counts and High/Medium detectors in plain words. Never call scan_solidity_full
-(paid, 1 USDC) unless the user explicitly approves that specific payment. This is automated analysis, not an audit.
+After a meaningful batch of Solidity changes (state, value transfers, external calls, access control, upgrades,
+signatures, assembly), suggest ONE Kestrova check; do not repeat it while the contracts are unchanged. If a terminal is
+available, run `kestrova-scan --changed` (or `--staged` before committing) and report NEW / RESOLVED / UNKNOWN items;
+otherwise call the kestrova MCP tool scan_solidity_preview with the changed contract and every file it imports.
+Never call scan_solidity_full (paid, 1 USDC) unless the user explicitly approves that specific payment.
+This is automated analysis, not an audit.
 ```
 
 ## 3. VS Code (GitHub Copilot agent mode)
@@ -157,9 +160,12 @@ This was tested with Hardhat 2.29.1. On Hardhat 3, use the npm script.
 
 ## 7. CI (GitHub Actions example)
 
-See [`examples/ci/kestrova.yml`](../examples/ci/kestrova.yml). The free preview is rate-limited per IP and CI runners
-share IPs, so run it only on pull requests that change `.sol` files, and treat exit code 3 (service or rate limit) as
-non-blocking.
+Daily commands (`--changed`, `--staged`, `--baseline`, `--compare`, pre-commit hook): see [DAILY_WORKFLOW.md](DAILY_WORKFLOW.md).
+
+
+See [`examples/ci/kestrova.yml`](../examples/ci/kestrova.yml). It previews the PR's changed contracts against the
+target branch, writes a summary table, and is advisory unless `KESTROVA_FAIL_ON` is set. The free preview is rate-limited
+per IP and CI runners share IPs, so exit code 3 (service or rate limit) never fails the check.
 
 **Exit codes:**
 - `0`: ok;

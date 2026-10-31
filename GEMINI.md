@@ -12,6 +12,14 @@ It is a safety net, not an audit.
 
 Skip it for comment-only or formatting-only edits.
 
+**Once per change set, not on every edit.**
+- Suggest one check after a meaningful batch of Solidity changes, or before a commit or PR.
+- Don't re-run when the contracts haven't changed since your last check in this session.
+- With a shell available, prefer `kestrova-scan --changed` (or `--staged` before a commit). It previews only the
+  changed contracts and their importers, compares them with the base branch (NEW / EXISTING / RESOLVED / UNKNOWN),
+  and reuses cached results.
+- Never call the paid scan just because a check ran.
+
 ## Connect (once)
 Kestrova is a remote MCP server: Streamable HTTP, no API key, no account.
 

@@ -1,7 +1,9 @@
 // Project detection (Foundry / Hardhat / plain) and import resolution. Reads only *.sol files and the project's
 // remapping configuration (foundry.toml, remappings.txt). Never reads .env or any other file.
+// Every read goes through a source provider (working tree, Git index or a commit; see sources.mjs).
 import fs from "node:fs";
 import path from "node:path";
+import { FsProvider } from "./sources.mjs";
 
 const HARDHAT_CONFIGS = ["hardhat.config.js", "hardhat.config.ts", "hardhat.config.cjs", "hardhat.config.mjs"];
 
@@ -17,11 +19,10 @@ export function findRoot(start) {
 }
 
 // Minimal foundry.toml reader: only `src`, `libs` and `remappings` in the [profile.default] (or top) section.
-export function readFoundryToml(root) {
-  const file = path.join(root, "foundry.toml");
+export function readFoundryToml(root, provider = new FsProvider(root)) {
   const out = { src: "src", libs: ["lib"], remappings: [] };
-  if (!fs.existsSync(file)) return out;
-  const text = fs.readFileSync(file, "utf8");
+  const text = provider.readText(path.join(root, "foundry.toml"));
+  if (text == null) return out;
   let section = "";
   const lines = text.split(/\r?\n/);
   for (let i = 0; i < lines.length; i++) {
@@ -42,7 +43,7 @@ export function readFoundryToml(root) {
   return out;
 }
 
-export function loadRemappings(root, kind) {
+export function loadRemappings(root, kind, provider = new FsProvider(root)) {
   const maps = [];
   const add = (line) => {
     const t = line.trim();
@@ -53,28 +54,28 @@ export function loadRemappings(root, kind) {
     maps.push({ prefix: ctxless.slice(0, eq), target: ctxless.slice(eq + 1) });
   };
   if (kind === "foundry") {
-    const toml = readFoundryToml(root);
+    const toml = readFoundryToml(root, provider);
     toml.remappings.forEach(add);
     // forge's automatic remappings for installed libraries: "<name>/" -> lib/<name>/src/ (or lib/<name>/)
     for (const lib of toml.libs) {
       const dir = path.join(root, lib);
-      if (!fs.existsSync(dir)) continue;
-      for (const name of fs.readdirSync(dir)) {
+      if (!provider.isDir(dir)) continue;
+      for (const name of provider.readdir(dir).sort()) {
         const base = path.join(dir, name);
-        if (!fs.statSync(base).isDirectory()) continue;
-        const target = fs.existsSync(path.join(base, "src")) ? `${lib}/${name}/src/` : `${lib}/${name}/`;
+        if (!provider.isDir(base)) continue;
+        const target = provider.exists(path.join(base, "src")) ? `${lib}/${name}/src/` : `${lib}/${name}/`;
         if (!maps.some((m) => m.prefix === `${name}/`)) maps.push({ prefix: `${name}/`, target, auto: true });
       }
     }
   }
-  const rtxt = path.join(root, "remappings.txt");
-  if (fs.existsSync(rtxt)) fs.readFileSync(rtxt, "utf8").split(/\r?\n/).forEach(add);
+  const rtxt = provider.readText(path.join(root, "remappings.txt"));
+  if (rtxt != null) rtxt.split(/\r?\n/).forEach(add);
   // explicit remappings win over automatic ones; longer prefixes win (solc semantics)
   return maps.sort((a, b) => (a.auto === b.auto ? b.prefix.length - a.prefix.length : a.auto ? 1 : -1));
 }
 
-export function defaultTargets(root, kind) {
-  if (kind === "foundry") return [readFoundryToml(root).src];
+export function defaultTargets(root, kind, provider = new FsProvider(root)) {
+  if (kind === "foundry") return [readFoundryToml(root, provider).src];
   if (kind === "hardhat") return ["contracts"];
   return ["."];
 }
@@ -97,16 +98,21 @@ export function resolveImport(spec, fromFile, ctx) {
   for (const m of ctx.remappings) {
     if (spec.startsWith(m.prefix)) {
       const p = path.resolve(ctx.root, m.target + spec.slice(m.prefix.length));
-      if (fs.existsSync(p)) return p;
+      if (ctx.provider.exists(p)) return p;
     }
   }
   for (const nm of ctx.nodeModules) {
     const p = path.join(nm, spec);
-    if (fs.existsSync(p)) return p;
+    if (ctx.provider.exists(p)) return p;
   }
   return path.resolve(ctx.root, spec);   // solc base-path semantics
 }
 
-export function context(root, kind) {
-  return { root: fs.realpathSync(root), kind, remappings: loadRemappings(root, kind), nodeModules: nodeModulesDirs(root) };
+export function context(root, kind, provider) {
+  const real = fs.realpathSync(root);
+  provider = provider || new FsProvider(real);
+  const nodeModules = nodeModulesDirs(real);
+  // Dependency trees that may live outside the project (hoisted workspaces, symlinked node_modules): canonical paths.
+  const nodeModulesReal = [...new Set(nodeModules.map((d) => { try { return fs.realpathSync(d); } catch { return d; } }))];
+  return { root: real, kind, provider, remappings: loadRemappings(real, kind, provider), nodeModules, nodeModulesReal };
 }

@@ -7,6 +7,8 @@ import test from "node:test";
 import { fileURLToPath } from "node:url";
 import { main } from "../bin/kestrova-scan.mjs";
 
+process.env.KESTROVA_STATE_DIR = fs.mkdtempSync(path.join(os.tmpdir(), "kstate-"));   // never write into examples/
+
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const REPO = path.resolve(HERE, "..", "..");
 const FOUNDRY = path.join(REPO, "examples", "foundry-vault");
@@ -36,14 +38,14 @@ test("preview: summary, exit codes, raw JSON unchanged, attribution, never a pay
   const s = await server((req, res) => { res.writeHead(200, { "content-type": "application/json" }); res.end(JSON.stringify(PREVIEW)); });
   try {
     let c = capture();
-    assert.equal(await main(["--url", s.url], { ...c, cwd: FOUNDRY }), 0);
+    assert.equal(await main(["--yes", "--no-cache", "--url", s.url], { ...c, cwd: FOUNDRY }), 0);
     assert.match(c.o.join("\n"), /High: 1/); assert.match(c.o.join("\n"), /reentrancy-eth/);
     assert.match(c.o.join("\n"), /only with your approval/);
     c = capture();
-    assert.equal(await main(["--url", s.url, "--fail-on", "high"], { ...c, cwd: FOUNDRY }), 1);
-    assert.equal(await main(["--url", s.url, "--fail-on", "medium"], { ...capture(), cwd: FOUNDRY }), 1);
+    assert.equal(await main(["--yes", "--no-cache", "--url", s.url, "--fail-on", "high"], { ...c, cwd: FOUNDRY }), 1);
+    assert.equal(await main(["--yes", "--no-cache", "--url", s.url, "--fail-on", "medium"], { ...capture(), cwd: FOUNDRY }), 1);
     c = capture();
-    assert.equal(await main(["--url", s.url, "--json"], { ...c, cwd: FOUNDRY }), 0);
+    assert.equal(await main(["--yes", "--no-cache", "--url", s.url, "--json"], { ...c, cwd: FOUNDRY }), 0);
     assert.deepEqual(JSON.parse(c.o.join("\n")), PREVIEW);
     const req = s.seen[0];
     assert.equal(req.method, "POST"); assert.equal(req.url, "/preview?src=cli");
@@ -56,7 +58,7 @@ test("preview: summary, exit codes, raw JSON unchanged, attribution, never a pay
 
 test("clean preview passes --fail-on high", async () => {
   const s = await server((req, res) => { res.writeHead(200); res.end(JSON.stringify({ counts: { Informational: 1 }, detectors: [] })); });
-  try { assert.equal(await main(["--url", s.url, "--fail-on", "high"], { ...capture(), cwd: FOUNDRY }), 0); }
+  try { assert.equal(await main(["--yes", "--no-cache", "--url", s.url, "--fail-on", "high"], { ...capture(), cwd: FOUNDRY }), 0); }
   finally { await s.close(); }
 });
 
@@ -68,15 +70,15 @@ test("service errors: rate limit, bad source, unreachable -> exit 3 with a clear
   });
   try {
     let c = capture();
-    assert.equal(await main(["--url", s.url], { ...c, cwd: FOUNDRY }), 3);
+    assert.equal(await main(["--yes", "--no-cache", "--url", s.url], { ...c, cwd: FOUNDRY }), 3);
     assert.match(c.e.join("\n"), /preview limit reached; retry in 600s/);
     status = 400; c = capture();
-    assert.equal(await main(["--url", s.url], { ...c, cwd: FOUNDRY }), 3);
+    assert.equal(await main(["--yes", "--no-cache", "--url", s.url], { ...c, cwd: FOUNDRY }), 3);
     assert.match(c.e.join("\n"), /compilation or analysis failed/);
     assert.ok(noPayment(s.seen));
   } finally { await s.close(); }
   const c = capture();
-  assert.equal(await main(["--url", "http://127.0.0.1:9"], { ...c, cwd: FOUNDRY }), 3);
+  assert.equal(await main(["--yes", "--no-cache", "--url", "http://127.0.0.1:9"], { ...c, cwd: FOUNDRY }), 3);
   assert.match(c.e.join("\n"), /cannot reach Kestrova/);
 });
 
@@ -88,7 +90,7 @@ test("--terms reads the public 402 offer once and never pays", async () => {
   });
   try {
     const c = capture();
-    assert.equal(await main(["--url", s.url, "--terms"], { ...c, cwd: FOUNDRY }), 0);
+    assert.equal(await main(["--yes", "--no-cache", "--url", s.url, "--terms"], { ...c, cwd: FOUNDRY }), 0);
     assert.match(c.o.join("\n"), /1 USDC .* payTo CWJdBX/);
     assert.match(c.o.join("\n"), /This tool never pays/);
     assert.equal(s.seen.length, 1); assert.ok(noPayment(s.seen));
@@ -98,10 +100,10 @@ test("--terms reads the public 402 offer once and never pays", async () => {
 test("--dry-run and --bundle never touch the network", async () => {
   const s = await server((req, res) => { res.writeHead(500); res.end(); });
   try {
-    assert.equal(await main(["--url", s.url, "--dry-run"], { ...capture(), cwd: FOUNDRY }), 0);
+    assert.equal(await main(["--yes", "--no-cache", "--url", s.url, "--dry-run"], { ...capture(), cwd: FOUNDRY }), 0);
     const out = path.join(fs.mkdtempSync(path.join(os.tmpdir(), "kb-")), "bundle.json");
     const c = capture();
-    assert.equal(await main(["--url", s.url, "--bundle", out], { ...c, cwd: FOUNDRY }), 0);
+    assert.equal(await main(["--yes", "--no-cache", "--url", s.url, "--bundle", out], { ...c, cwd: FOUNDRY }), 0);
     assert.equal(Object.keys(JSON.parse(fs.readFileSync(out, "utf8")).sources).length, 3);
     assert.match(c.e.join("\n"), /only with your approval/);
     assert.equal(s.seen.length, 0);
@@ -116,7 +118,7 @@ test("over the free limit: refuses before any request and explains", async () =>
   const s = await server((req, res) => { res.writeHead(200); res.end("{}"); });
   try {
     const c = capture();
-    assert.equal(await main(["--url", s.url], { ...c, cwd: root }), 2);
+    assert.equal(await main(["--yes", "--no-cache", "--url", s.url], { ...c, cwd: root }), 2);
     assert.match(c.e.join("\n"), /21 files \(limit 20\)/);
     assert.equal(s.seen.length, 0);
   } finally { await s.close(); }
@@ -126,4 +128,13 @@ test("usage errors exit 2", async () => {
   assert.equal(await main(["--fail-on", "critical"], capture()), 2);
   assert.equal(await main(["--nope"], capture()), 2);
   assert.equal(await main(["missing-dir"], { ...capture(), cwd: FOUNDRY }), 2);
+});
+
+test("runs when started through a symlink (as npm installs bin entries)", async () => {
+  const { spawnSync } = await import("node:child_process");
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), "klink-"));
+  const link = path.join(dir, "kestrova-scan");
+  fs.symlinkSync(path.join(REPO, "cli", "bin", "kestrova-scan.mjs"), link);
+  const r = spawnSync(process.execPath, [link, "--version"], { encoding: "utf8" });
+  assert.equal(r.status, 0); assert.match(r.stdout, /^\d+\.\d+\.\d+/);
 });

@@ -33,7 +33,7 @@ test("install links in the docs decode to the same configs", () => {
 });
 
 test("docs never claim official status, always say not an audit, and never pay by default", () => {
-  for (const f of ["docs/QUICKSTART.md", "docs/INTEGRATIONS.md", "cli/README.md"]) {
+  for (const f of ["docs/QUICKSTART.md", "docs/INTEGRATIONS.md", "docs/DAILY_WORKFLOW.md", "cli/README.md"]) {
     const t = read(f);
     assert.match(t, /not an audit/i, f);
     assert.doesNotMatch(t, /official (partner|integration of|plugin of)|endorsed by|in partnership with/i, f);
@@ -45,7 +45,7 @@ test("docs never claim official status, always say not an audit, and never pay b
 test("CI example never pays, needs no secrets and does not block on service errors", () => {
   const ci = read("examples/ci/kestrova.yml");
   assert.doesNotMatch(ci, /\$\{\{\s*secrets\.|PRIVATE_KEY|--bundle|\/scan\b/);
-  assert.match(ci, /code" = "3"/);
+  assert.match(ci, /3\) echo "::warning::Kestrova unavailable or rate-limited; not blocking"; exit 0/);
   assert.match(ci, /contents: read/);
 });
 

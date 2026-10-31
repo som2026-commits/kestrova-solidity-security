@@ -34,6 +34,8 @@ node cli/bin/kestrova-scan.mjs             # free preview of src/ (Foundry) or c
 ```
 
 - **5-minute start:** [docs/QUICKSTART.md](docs/QUICKSTART.md).
+- **Daily use:** [docs/DAILY_WORKFLOW.md](docs/DAILY_WORKFLOW.md): `--changed`, `--staged`, baseline/compare, an
+  optional pre-commit hook and pull-request checks.
 - **Every setup:** [docs/INTEGRATIONS.md](docs/INTEGRATIONS.md), covering:
   - Claude Code, Cursor and VS Code;
   - Foundry, Hardhat (npm script or Hardhat 2 task) and CI;

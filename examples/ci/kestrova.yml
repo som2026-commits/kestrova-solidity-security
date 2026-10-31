@@ -1,27 +1,56 @@
-# Example GitHub Actions workflow: free Kestrova preview on pull requests that change Solidity.
-# Copy to .github/workflows/kestrova.yml in YOUR project. It never pays and needs no secrets.
-name: Kestrova preview
+# Kestrova pull-request check: free preview of the CHANGED Solidity contracts (and the contracts that import them),
+# compared with the same files on the target branch. Copy to .github/workflows/kestrova.yml in YOUR project.
+#
+# Security model:
+#   - `pull_request` (not pull_request_target): fork PRs get a read-only token and no secrets; none are used anyway.
+#   - PR code is untrusted: it is only READ (.sol files, foundry.toml, remappings.txt). No project scripts run:
+#     dependencies are installed with --ignore-scripts, and the Kestrova CLI comes from a pinned copy of the Kestrova
+#     repository, never from the pull request.
+#   - The checkout does not persist the token. Nothing is paid; the free preview is rate-limited per IP, so service
+#     and rate-limit errors never fail the check.
+name: Kestrova
 on:
   pull_request:
-    paths: ["**/*.sol"]
+    paths: ["**/*.sol", "foundry.toml", "remappings.txt"]
 permissions:
   contents: read
+concurrency:
+  group: kestrova-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
 jobs:
-  preview:
+  changed-solidity:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      KESTROVA_FAIL_ON: none          # advisory. Set to high or medium to fail the check on NEW findings only.
+      KESTROVA_CLI_REF: main          # pin to a reviewed commit SHA of kestrova-solidity-security
     steps:
       - uses: actions/checkout@v4
-        with: { submodules: recursive }     # Foundry: lib/ dependencies are git submodules
+        with:
+          fetch-depth: 0              # the target branch is needed for the comparison
+          persist-credentials: false
+          submodules: recursive       # Foundry lib/ dependencies
       - uses: actions/setup-node@v4
-        with: { node-version: 22 }
-      # Hardhat projects: install dependencies so @openzeppelin/... imports resolve
-      - run: '[ -f package-lock.json ] && npm ci --ignore-scripts || true'
-      # Until kestrova-scan is published to npm, fetch the CLI from a pinned copy of this repository.
-      - run: git clone --depth 1 https://github.com/som2026-commits/kestrova-solidity-security /tmp/kestrova
-      - name: Kestrova free preview (fails on High; service/rate-limit errors do not block)
+        with:
+          node-version: 22
+      - name: Install Solidity dependencies without running any package scripts
+        run: |
+          if [ -f package-lock.json ]; then npm ci --ignore-scripts --no-audit --no-fund; fi
+      - name: Fetch the Kestrova CLI (pinned, never from the pull request)
+        run: |
+          git clone --quiet https://github.com/som2026-commits/kestrova-solidity-security "$RUNNER_TEMP/kestrova"
+          git -C "$RUNNER_TEMP/kestrova" checkout --quiet "$KESTROVA_CLI_REF"
+      - name: Kestrova changed-file check
+        env:
+          BASE_REF: ${{ github.base_ref }}
         run: |
           set +e
-          node /tmp/kestrova/cli/bin/kestrova-scan.mjs --fail-on high
+          node "$RUNNER_TEMP/kestrova/cli/bin/kestrova-scan.mjs" --changed "origin/$BASE_REF" --yes \
+            --fail-on "$KESTROVA_FAIL_ON" --summary-md "$GITHUB_STEP_SUMMARY" --state-dir "$RUNNER_TEMP/kestrova-state"
           code=$?
-          if [ "$code" = "3" ]; then echo "::warning::Kestrova unavailable or rate-limited; not blocking"; exit 0; fi
-          exit $code
+          case "$code" in
+            0) exit 0 ;;
+            1) echo "::error::Kestrova: NEW findings at or above $KESTROVA_FAIL_ON (see the job summary)"; exit 1 ;;
+            3) echo "::warning::Kestrova unavailable or rate-limited; not blocking"; exit 0 ;;
+            *) echo "::warning::Kestrova could not scan this change (exit $code); see the log"; exit 0 ;;
+          esac

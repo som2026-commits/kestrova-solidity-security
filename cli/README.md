@@ -10,7 +10,17 @@ kestrova-scan src/Vault.sol --json      # one contract + its imports; raw servic
 kestrova-scan --fail-on high            # CI: exit 1 on High findings
 kestrova-scan src/Vault.sol --bundle vault.json   # sources for the optional paid report (1 USDC, your approval)
 kestrova-scan --terms                   # current paid terms (reads the public 402 offer; never pays)
+kestrova-scan --changed [main]          # only changed contracts (+ importers) vs the same files on main
+kestrova-scan --staged                  # exactly what is staged for the next commit, vs HEAD
+kestrova-scan --baseline | --compare    # whole-project baseline, then compare against it
+kestrova-scan --install-hook [--enforce] | --uninstall-hook   # optional pre-commit hook (advisory by default)
 ```
+
+**Daily workflow:** [docs/DAILY_WORKFLOW.md](../docs/DAILY_WORKFLOW.md). It covers NEW / EXISTING / RESOLVED /
+UNKNOWN, the hook, CI and the free-quota impact.
+
+**First upload from a project:** shows the exact files and asks once; the approval is remembered in
+`.kestrova/consent.json`. Pass `--yes` in CI. Identical sources are answered from a local cache. No telemetry.
 
 **Not published to npm yet:** run `node cli/bin/kestrova-scan.mjs` from this repository.
 
@@ -18,6 +28,8 @@ kestrova-scan --terms                   # current paid terms (reads the public 4
 - **Uploaded:** only `.sol` files, and only your targets plus the files they import. Remapped and `node_modules`
   imports are resolved.
 - **Refused:** files outside the project (including via symlinks) and files that look like they contain secrets.
+  The one exception is imported `.sol` files inside a `node_modules` folder of the project or a parent folder
+  (hoisted workspaces).
 - **Never read:** `.env`, keys, configs other than the remappings, and build output.
 - Uploaded copies only have their import paths rewritten to service-safe names, in place, so finding line numbers
   match your files.

@@ -7,7 +7,8 @@ export class ServiceError extends Error {
   constructor(message, status, body) { super(message); this.status = status; this.body = body; }
 }
 
-function base(url) { return (url || process.env.KESTROVA_URL || DEFAULT_URL).replace(/\/+$/, ""); }
+export function serviceUrl(url) { return (url || process.env.KESTROVA_URL || DEFAULT_URL).replace(/\/+$/, ""); }
+const base = serviceUrl;
 
 async function post(url, path, body, fetchImpl) {
   const headers = { "content-type": "application/json", accept: "application/json",

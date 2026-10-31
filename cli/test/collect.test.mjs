@@ -128,3 +128,22 @@ test("limits match the service and upload names are sanitized consistently", () 
                           "a@b/X.sol": PRAGMA + "contract X1 {}\n", "a_b/X.sol": PRAGMA + "contract X2 {}\n" });
   assert.throws(() => collect({ cwd: clash }), /same upload name/);
 });
+
+test("hoisted or symlinked node_modules outside the project are allowed for imported .sol only", () => {
+  const ws = fs.mkdtempSync(path.join(os.tmpdir(), "ws-"));
+  fs.mkdirSync(path.join(ws, "node_modules", "@oz", "lib"), { recursive: true });
+  fs.writeFileSync(path.join(ws, "node_modules", "@oz", "lib", "Base.sol"), PRAGMA + "contract Base {}\n");
+  fs.writeFileSync(path.join(ws, "node_modules", "@oz", "lib", "secret.env"), "PRIVATE_KEY=1");
+  fs.writeFileSync(path.join(ws, "Outside.sol"), PRAGMA + "contract Outside {}\n");
+  const app = path.join(ws, "packages", "app");
+  fs.mkdirSync(path.join(app, "contracts"), { recursive: true });
+  fs.writeFileSync(path.join(app, "hardhat.config.js"), "module.exports = {};");
+  fs.writeFileSync(path.join(app, "contracts", "A.sol"), PRAGMA + 'import "@oz/lib/Base.sol";\ncontract A is Base {}\n');
+  const b = collect({ cwd: app });
+  assert.deepEqual(Object.keys(b.sources).sort(), ["contracts/A.sol", "node_modules/_oz/lib/Base.sol"]);
+  assert.match(b.sources["contracts/A.sol"], /"node_modules\/_oz\/lib\/Base\.sol"/);
+  fs.writeFileSync(path.join(app, "contracts", "A.sol"), PRAGMA + 'import "../../../Outside.sol";\ncontract A {}\n');
+  assert.throws(() => collect({ cwd: app }), /outside the project/);          // only node_modules trees, never elsewhere
+  fs.writeFileSync(path.join(app, "contracts", "A.sol"), PRAGMA + 'import "@oz/lib/secret.env";\ncontract A {}\n');
+  assert.throws(() => collect({ cwd: app }), /refusing non-Solidity import/);
+});
