@@ -1,0 +1,11 @@
+{
+  "name": "kestrova",
+  "version": "0.4.0",
+  "description": "Solidity security review: free Slither preview, optional 1 USDC full report via x402 on Solana (asks first). Not an audit.",
+  "contextFileName": "GEMINI.md",
+  "mcpServers": {
+    "kestrova": {
+      "httpUrl": "https://kestrova.onrender.com/mcp?src=gemini"
+    }
+  }
+}

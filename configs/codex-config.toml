@@ -1,0 +1,3 @@
+# Append to ~/.codex/config.toml (or a trusted project's .codex/config.toml)
+[mcp_servers.kestrova]
+url = "https://kestrova.onrender.com/mcp?src=codex"

@@ -1,55 +1,122 @@
 ---
 name: solidity-security-review
-description: Security review for Solidity smart contracts. Use whenever you write, generate, modify or refactor a Solidity (.sol) contract, prepare one for deployment (Foundry, Hardhat, Remix, scripts), or the user asks for a security review, audit, vulnerability check or "is this contract safe". Runs a free Slither static-analysis preview, explains the results honestly, and offers an optional paid line-level report only with the user's explicit approval.
+description: Security review for Solidity smart contracts with Kestrova (Slither static analysis). Use whenever you write, generate, modify or refactor a Solidity (.sol) contract, prepare one for deployment (Foundry, Hardhat, Remix, scripts), or the user asks for a security review, audit, vulnerability check or "is this contract safe". Runs a free preview first; a full line-level report costs 1 USDC on Solana via x402 and is bought only with the user's approval. Also recovers an already-paid report without paying again.
 ---
 
 # Solidity Security Review (Kestrova)
 
-Automated static analysis (Slither) to catch known vulnerability patterns before a contract is deployed.
+Automated static analysis (Slither) that catches known vulnerability patterns before a contract is deployed.
 It is a safety net, not an audit.
 
 ## When to run it
-- You created a new Solidity contract or made a non-trivial change (state, transfers, external calls, access control, upgrades).
+- You created a Solidity contract or made a non-trivial change (state, transfers, external calls, access control,
+  upgrades, signatures, oracles).
 - Before any deployment step, including testnet.
 - The user asks for a security review, audit, vulnerability scan or "is it safe?".
+
 Skip it for comment-only or formatting-only edits.
+
+## Connect (once)
+Kestrova is a remote MCP server: Streamable HTTP, no API key, no account.
+
+- URL: `https://kestrova.onrender.com/mcp`
+- Tools:
+  - `scan_solidity_preview` (free);
+  - `scan_solidity_full` (paid, 1 USDC);
+  - `payment_terms` (free).
+
+If the `kestrova` tools are not available, set the server up. Per-agent commands are in [README](../../README.md). In
+Claude Code:
+
+```
+claude mcp add --transport http kestrova https://kestrova.onrender.com/mcp
+```
+
+Without MCP, use plain HTTPS. The free preview needs no setup:
+
+```
+POST https://kestrova.onrender.com/preview
+content-type: application/json
+
+{"sources": {"src/Vault.sol": "<source>"}}
+```
+
+The first request after the service has been idle can take up to a minute.
 
 ## Workflow
 
-1. **Collect sources.** Build `{"sources": {"path/File.sol": "<source>", ...}}` with the contract and every local file it
-   imports (OpenZeppelin and other libraries too, if they are vendored in the project). Max 60 kB, 20 files.
-2. **Free preview (no key, no payment).**
-   - MCP (preferred): call `scan_solidity_preview` on the `kestrova` MCP server.
-   - HTTP: `curl -s -X POST "https://kestrova.onrender.com/preview?src=skill" -H 'content-type: application/json' -d @payload.json`
-   - Local alternative: if `slither` is already installed in the project, you may run it directly instead.
-   The preview returns severity counts and the names of High/Medium detectors. The first call can take up to a
-   minute while the service wakes up.
+1. **Collect sources.**
+   - Build `{"sources": {"path/File.sol": "<source>", ...}}`.
+   - Include the contract and every file it imports, including vendored libraries such as OpenZeppelin.
+   - Limits: 60 kB and 20 files. A `pragma solidity` line is required.
+2. **Free preview.**
+   - Call `scan_solidity_preview`, or `POST /preview`.
+   - It returns severity counts and the names of High/Medium detectors.
+   - It is rate-limited to 6 per hour per client.
 3. **Act on the preview.**
-   - Use the detector names (e.g. `reentrancy-eth`, `tx-origin`, `unchecked-send`, `arbitrary-send-eth`) to find and
-     fix the issue yourself where it is clear; re-run the preview to confirm the count drops.
-   - If High/Medium findings remain and you cannot locate them, the optional full report gives exact lines.
-4. **Optional paid report: ask first.** Tell the user, in one message: what was found (counts, detector names), the
-   price (call `payment_terms`), that payment is USDC on Solana via
-   x402 from *their own* configured wallet, and that they are charged only if the scan succeeds. Proceed only on an
-   explicit "yes" and only within a spending limit the user has set. Never pay silently, never retry a payment without
-   asking again, never ask for, read or handle private keys or seed phrases. If no x402-capable wallet tool is
-   configured, say so and stop at the free preview.
-5. **Fix and verify.** For each finding: show the location, explain the risk in one or two sentences, propose a fix
-   (checks-effects-interactions, `ReentrancyGuard`, `msg.sender` instead of `tx.origin`, checked `call` results,
-   access control), apply it if the user agrees, then re-run the free preview.
+   - Use the detector names (`reentrancy-eth`, `tx-origin`, `unchecked-send`, `arbitrary-send-eth`, ...) to find and
+     fix clear issues yourself.
+   - Re-run the preview to confirm the count drops.
+4. **Optional full report (1.00 USDC).** Use it when High/Medium findings remain and you need exact lines.
+   - **Ask the user first, in one message:**
+     - the counts and detector names;
+     - the price, 1.00 USDC on Solana mainnet via x402, charged only if the scan succeeds;
+     - which wallet will pay.
+   - Proceed only on an explicit yes, and only within a spending limit the user set.
+   - **If you or your user have an x402-capable Solana wallet tool,** follow [the payment reference](reference/x402-payment.md).
+     The short version: call `scan_solidity_full`. Without payment it returns the x402 `PaymentRequired` terms. Check
+     them, have the wallet sign exactly those terms, and call again with the signed payment in
+     `_meta["x402/payment"]`.
+   - **If no x402 wallet is configured,** say so and stop at the free preview. Never ask for, read or handle private
+     keys or seed phrases.
+5. **Fix and verify.** For each finding:
+   - show the location;
+   - explain the risk in one or two sentences;
+   - propose a fix (checks-effects-interactions, `ReentrancyGuard`, `msg.sender` instead of `tx.origin`, checked
+     `call` results, access control);
+   - apply it if the user agrees;
+   - re-run the free preview.
 
-## How to report results (mandatory wording rules)
-- Never say a contract is "safe", "secure", "audited" or "verified" because a scan found nothing. Say:
-  "Slither found no issues in the patterns it checks. This is not an audit."
-- Always state the coverage limits below when summarising a clean or nearly clean result.
-- For contracts that will hold real value, recommend a professional audit and thorough tests in addition to this scan.
+## Paying safely (non-negotiable)
+- **Pin the terms. Refuse anything else:**
+  - x402 v2, scheme `exact`;
+  - network `solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp`;
+  - asset USDC `EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v`;
+  - amount `1000000`;
+  - `payTo` `CWJdBXpfaARqqWA6XrDXsVGVcZMM8rMcQbSfLqFwNeqc`;
+  - `extra.feePayer` set by the facilitator (PayAI).
+- **Wallet permissions:** the signer needs 1.00 USDC and no SOL. It signs one SPL `transferChecked`; it never
+  broadcasts. Use a dedicated low-balance signer with a 1.00 USDC per-payment cap.
+- **Never pay twice:**
+  - Save the signed payment before sending it.
+  - If the result is `pending`, `already_paid`, a timeout, or anything unclear, do **not** sign a new payment.
+    Recover instead (below).
+  - A refusal that says "not charged" means nothing was paid. Fix the cause before trying again.
+
+## Recover a report you already paid for (free)
+The wallet that signed the payment proves ownership with a message signature. This is never a transaction.
+
+1. Request a challenge:
+   `POST https://kestrova.onrender.com/scan/recover {"payment": "<signed payment>", "wallet": "<signer>", "action": "challenge"}`.
+2. The same wallet signs the returned `message` text (ed25519).
+3. Send `{"payment", "wallet", "message", "token", "expires", "signature": "<base64>"}` to the same endpoint.
+4. You get the original report.
+
+Details are in [the payment reference](reference/x402-payment.md).
+
+## How to report results (mandatory wording)
+- Never say a contract is "safe", "secure", "audited" or "verified" because a scan found nothing. Say: "Slither found
+  no issues in the patterns it checks. This is not an audit."
+- State the coverage limits below whenever you summarise a clean or nearly clean result.
+- For contracts that will hold real value, recommend a professional audit and thorough tests.
 
 ## Coverage limits
-Detects known code patterns only. It does not evaluate business logic, economic, oracle or MEV attacks, whether access
-control matches the intended design, upgrade and admin-key risks, code not included in the sources, or deployment
-configuration. Findings can include false positives: verify each one before changing code.
+Kestrova detects known code patterns only. It does not evaluate:
+- business logic;
+- economic, oracle or MEV attacks;
+- whether access control matches the intended design;
+- upgrade and admin-key risks;
+- code not included in the sources;
+- deployment configuration.
 
-## Setup (one time)
-- Claude Code: `claude mcp add --transport http kestrova "https://kestrova.onrender.com/mcp?src=skill"`
-- Other MCP clients: remote server, Streamable HTTP, URL `https://kestrova.onrender.com/mcp?src=skill`, no auth.
-- HTTP only: no setup for the free preview.
+Findings can be false positives: verify each one before changing code.

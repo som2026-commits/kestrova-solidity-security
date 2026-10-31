@@ -10,7 +10,8 @@
     {
       "name": "solidity-security-review",
       "source": "./solidity-security-review",
-      "description": "Free Slither security preview for Solidity contracts, optional paid line-level report (asks first). Not an audit."
+      "description": "Free Slither security preview for Solidity contracts; optional 1 USDC full report via x402 on Solana (asks first). Not an audit.",
+      "version": "0.2.0"
     }
   ]
 }

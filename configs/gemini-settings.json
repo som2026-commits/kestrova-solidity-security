@@ -1,0 +1,7 @@
+{
+  "mcpServers": {
+    "kestrova": {
+      "httpUrl": "https://kestrova.onrender.com/mcp?src=gemini"
+    }
+  }
+}
