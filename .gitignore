@@ -1,0 +1,4 @@
+__pycache__/
+*.pyc
+kestrova-payment.json
+*signer*.json

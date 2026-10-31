@@ -57,6 +57,20 @@ take up to a minute.
 | Fee payer | PayAI facilitator (`extra.feePayer`); the buyer needs **no SOL** |
 | Wallet permission | sign one SPL `transferChecked` of exactly 1.00 USDC; never broadcast, never share keys |
 
+**Buy one from code (official x402 Python SDK):** [`examples/python/pay_scan.py`](examples/python/pay_scan.py).
+- `python pay_scan.py Vault.sol` is a dry run: it fetches and checks the terms and signs nothing.
+- `--pay` signs exactly one pinned 1 USDC payment, saving it before sending.
+- `--recover` re-downloads a paid report for free.
+
+**Verification status:**
+- **HTTP `POST /scan` on Solana mainnet:** tested end to end on 2026-10-31 with an owner-funded test payment. Covered:
+  - settlement through the PayAI facilitator;
+  - report delivery;
+  - replay refused (409);
+  - wallet-signed recovery.
+- **MCP `scan_solidity_full`:** uses the same payment guard and ledger, and is tested against a simulated facilitator.
+  It has not yet settled on mainnet.
+
 **Replay protection:** each signed payment is accepted at most once, across HTTP and MCP. After an unclear outcome
 (`pending`, `already_paid`, timeout), **do not sign a new payment**. Recover the report for free with a wallet-signed
 challenge (`POST /scan/recover`). The full protocol, every outcome and the recovery steps are in the
