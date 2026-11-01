@@ -173,6 +173,16 @@ per IP and CI runners share IPs, so exit code 3 (service or rate limit) never fa
 - `2`: usage, collection or size-limit problem (nothing was sent);
 - `3`: service unreachable or rate-limited (nothing was charged).
 
+## 7b. Autonomous agents and GitHub code scanning
+
+- **Coinbase AgentKit and Solana Agent Kit actions** (deployed-contract risk check, Solidity preview and highlights;
+  payments are off unless you set your own x402 client and a cap):
+  [`integrations/agent-frameworks/README.md`](../integrations/agent-frameworks/README.md).
+- **SARIF:** convert a paid report for GitHub code scanning with
+  `kestrova-scan --to-sarif report.json --sarif-out kestrova.sarif`, then upload it with
+  `github/codeql-action/upload-sarif`.
+- **Accuracy** on a public benchmark: [ACCURACY.md](ACCURACY.md).
+
 ## 8. The paid full report (optional, 1 USDC, your approval)
 
 ```bash

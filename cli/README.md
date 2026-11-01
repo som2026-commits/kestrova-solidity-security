@@ -14,6 +14,7 @@ kestrova-scan --changed [main]          # only changed contracts (+ importers) v
 kestrova-scan --staged                  # exactly what is staged for the next commit, vs HEAD
 kestrova-scan --baseline | --compare    # whole-project baseline, then compare against it
 kestrova-scan --install-hook [--enforce] | --uninstall-hook   # optional pre-commit hook (advisory by default)
+kestrova-scan --to-sarif report.json --sarif-out kestrova.sarif   # offline: full/highlights/address-risk report -> SARIF 2.1.0
 ```
 
 **Daily workflow:** [docs/DAILY_WORKFLOW.md](../docs/DAILY_WORKFLOW.md). It covers NEW / EXISTING / RESOLVED /

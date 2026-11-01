@@ -10,6 +10,7 @@ import { CollectError, checkLimits, collect } from "../lib/collect.mjs";
 import { ServiceError, VERSION, preview, serviceUrl, terms } from "../lib/client.mjs";
 import { RANK, compareReports, comparePreviews, gate, renderMarkdown, renderText } from "../lib/compare.mjs";
 import { HookError, installHook, uninstallHook } from "../lib/hook.mjs";
+import { toSarif } from "../lib/sarif.mjs";
 import { cacheGet, cachePut, hasConsent, loadBaseline, saveBaseline, saveConsent, sourcesKey, stateDir } from "../lib/state.mjs";
 import { gitTop } from "../lib/sources.mjs";
 import { findRoot } from "../lib/project.mjs";
@@ -40,6 +41,8 @@ Options:
   --bundle FILE        write {"sources": ...} for the optional paid report via your own x402 client (1 USDC)
   --compare-reports BASE.json CURRENT.json [--renames-from REF] [--scope BUNDLE.json]
                        compare two full reports per finding (offline; no network)
+  --to-sarif REPORT.json [--sarif-out FILE]
+                       convert a full/highlights/address-risk report to SARIF 2.1.0 (offline; GitHub code scanning)
   --include-tests      also scan *.t.sol / *.s.sol and test/ script/ folders
   --allow-secret-pattern  upload even if a file looks like it contains a secret (not recommended)
   --terms              show the current paid-scan terms (reads the public 402 offer; never pays)
@@ -78,6 +81,8 @@ function parse(argv) {
     else if (a === "--uninstall-hook") o.uninstallHook = true;
     else if (a === "--compare-reports") { o.compareReports = [next(i), argv[i + 2]]; i += 2; if (!o.compareReports[1]) throw new Error("--compare-reports needs BASE.json CURRENT.json"); }
     else if (a === "--renames-from") o.renamesFrom = next(i++) && argv[i];
+    else if (a === "--to-sarif") o.toSarif = next(i++) && argv[i];
+    else if (a === "--sarif-out") o.sarifOut = next(i++) && argv[i];
     else if (a === "--scope") o.scope = next(i++) && argv[i];
     else if (a === "--fail-on") o.failOn = next(i++) && argv[i].toLowerCase();
     else if (a === "--base") o.base = next(i++) && argv[i];
@@ -127,6 +132,13 @@ export async function main(argv, { out = console.log, err = console.error, fetch
     }
     if (o.installHook || o.uninstallHook) return hookAdmin(o, { out, err, cwd });
     if (o.compareReports) return compareReportFiles(o, { out, err, cwd, md });
+    if (o.toSarif) {
+      const sarif = toSarif(JSON.parse(fs.readFileSync(path.resolve(cwd, o.toSarif), "utf8")), { toolVersion: VERSION });
+      const text = JSON.stringify(sarif, null, 2);
+      if (o.sarifOut) { fs.writeFileSync(path.resolve(cwd, o.sarifOut), text); err(`wrote ${o.sarifOut} (${sarif.runs[0].results.length} result(s))`); }
+      else out(text);
+      return 0;
+    }
 
     const ctx = { o, out, err, fetchImpl, cwd, url, md, confirm: confirm || defaultConfirm, interactive };
     if (o.changed || o.staged || o.hook) return await changedFlow(ctx);

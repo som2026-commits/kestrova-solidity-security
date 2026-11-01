@@ -42,6 +42,13 @@ node cli/bin/kestrova-scan.mjs             # free preview of src/ (Foundry) or c
   - an MCP setup check that never pays.
 - **Examples:** [examples/foundry-vault](examples/foundry-vault), [examples/hardhat-token](examples/hardhat-token).
 
+- **Autonomous agents** (Coinbase AgentKit, Solana Agent Kit):
+  [integrations/agent-frameworks](integrations/agent-frameworks/README.md). Covers the deployed-contract risk check
+  (free preview; 0.05 USDC verdict) and Solidity highlights (0.10 USDC). Payments are off unless you set a wallet
+  client and a cap.
+- **Accuracy:** [docs/ACCURACY.md](docs/ACCURACY.md) (SmartBugs-curated benchmark). **SARIF:**
+  `kestrova-scan --to-sarif report.json` for GitHub code scanning.
+
 These use each tool's standard extension points; they are not official integrations of those tools' vendors.
 
 ## Tools
