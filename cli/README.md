@@ -17,13 +17,13 @@ kestrova-scan --install-hook [--enforce] | --uninstall-hook   # optional pre-com
 kestrova-scan --to-sarif report.json --sarif-out kestrova.sarif   # offline: full/highlights/address-risk report -> SARIF 2.1.0
 ```
 
-**Daily workflow:** [docs/DAILY_WORKFLOW.md](../docs/DAILY_WORKFLOW.md). It covers NEW / EXISTING / RESOLVED /
-UNKNOWN, the hook, CI and the free-quota impact.
+**Daily workflow:** `--changed` and `--staged` label each finding NEW, EXISTING, RESOLVED or UNKNOWN against the
+base version of the same files; `--baseline` / `--compare` do the same for the whole project.
 
 **First upload from a project:** shows the exact files and asks once; the approval is remembered in
 `.kestrova/consent.json`. Pass `--yes` in CI. Identical sources are answered from a local cache. No telemetry.
 
-**Not published to npm yet:** run `node cli/bin/kestrova-scan.mjs` from this repository.
+**Install:** `npm install -g kestrova-scan` (or run once with `npx kestrova-scan --dry-run`).
 
 **Privacy:**
 - **Uploaded:** only `.sol` files, and only your targets plus the files they import. Remapped and `node_modules`

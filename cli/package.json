@@ -3,11 +3,32 @@
   "version": "0.1.0",
   "description": "Free Slither preview of Foundry/Hardhat Solidity projects via Kestrova. Uploads only your .sol targets and their imports. Not an audit.",
   "type": "module",
-  "bin": { "kestrova-scan": "bin/kestrova-scan.mjs" },
-  "files": ["bin", "lib", "README.md"],
-  "engines": { "node": ">=18" },
-  "scripts": { "test": "node --test test/*.test.mjs" },
-  "keywords": ["solidity", "slither", "foundry", "hardhat", "security", "mcp", "x402"],
+  "bin": {
+    "kestrova-scan": "bin/kestrova-scan.mjs"
+  },
+  "files": [
+    "bin",
+    "lib",
+    "README.md"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "test": "node --test test/*.test.mjs"
+  },
+  "keywords": [
+    "solidity",
+    "slither",
+    "foundry",
+    "hardhat",
+    "security",
+    "mcp",
+    "x402"
+  ],
   "license": "MIT",
-  "private": true
+  "homepage": "https://kestrova.onrender.com",
+  "bugs": {
+    "email": "kestrova.security@gmail.com"
+  }
 }

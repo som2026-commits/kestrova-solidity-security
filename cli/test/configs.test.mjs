@@ -49,6 +49,12 @@ test("CI example never pays, needs no secrets and does not block on service erro
   assert.match(ci, /contents: read/);
 });
 
-test("the CLI package cannot be published by accident", () => {
-  assert.equal(JSON.parse(read("cli/package.json")).private, true);
+test("the published CLI package ships only bin, lib and README, with no payment or telemetry code", () => {
+  const pkg = JSON.parse(read("cli/package.json"));
+  assert.deepEqual(pkg.files, ["bin", "lib", "README.md"]);
+  assert.equal(pkg.dependencies, undefined);
+  assert.equal(pkg.scripts.postinstall ?? pkg.scripts.install ?? pkg.scripts.preinstall, undefined);
+  for (const dir of ["cli/bin", "cli/lib"])
+    for (const f of fs.readdirSync(path.join(REPO, dir)))
+      assert.doesNotMatch(read(`${dir}/${f}`), /PAYMENT-SIGNATURE"\s*\]\s*=|signTransaction|secretKey|analytics|telemetry\(/, `${dir}/${f}`);
 });
