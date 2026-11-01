@@ -49,9 +49,9 @@ test("CI example never pays, needs no secrets and does not block on service erro
   assert.match(ci, /contents: read/);
 });
 
-test("the published CLI package ships only bin, lib and README, with no payment or telemetry code", () => {
+test("the published CLI package ships only the CLI, README and Claude plugin files, with no payment or telemetry code", () => {
   const pkg = JSON.parse(read("cli/package.json"));
-  assert.deepEqual(pkg.files, ["bin", "lib", "README.md"]);
+  assert.deepEqual(pkg.files, ["bin", "lib", "README.md", ".claude-plugin", ".mcp.json", "skills", "claude-marketplace.json"]);
   assert.equal(pkg.dependencies, undefined);
   assert.equal(pkg.scripts.postinstall ?? pkg.scripts.install ?? pkg.scripts.preinstall, undefined);
   for (const dir of ["cli/bin", "cli/lib"])

@@ -27,8 +27,8 @@ tells it never to pay without your explicit "yes".
 
 ```bash
 # from a local copy of this repository (the npm package is not published yet)
-node /path/to/kestrova-solidity-security/cli/bin/kestrova-scan.mjs --dry-run   # see exactly what would be uploaded
-node /path/to/kestrova-solidity-security/cli/bin/kestrova-scan.mjs             # free preview
+npx kestrova-scan --dry-run   # see exactly what would be uploaded
+npx kestrova-scan             # free preview
 ```
 
 The tool:

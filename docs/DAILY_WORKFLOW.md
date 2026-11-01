@@ -3,7 +3,7 @@
 The daily commands below give you a quick, free **automated Slither check of what you changed**, compared with the code
 before your change. They are not an audit, and they don't replace a full review of the whole codebase.
 
-**Commands** (`node /path/to/kestrova-solidity-security/cli/bin/kestrova-scan.mjs` until the npm package is published):
+**Commands** (`npx kestrova-scan ...`, or `npm install -g kestrova-scan`):
 
 | When | Command | What it does |
 |---|---|---|

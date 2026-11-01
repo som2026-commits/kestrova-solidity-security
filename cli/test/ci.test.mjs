@@ -19,6 +19,9 @@ test("workflow: least privilege, untrusted PR code is never executed, advisory b
   assert.doesNotMatch(WF, /\$\{\{\s*secrets\./);
   assert.match(WF, /persist-credentials: false/);
   assert.match(WF, /npm ci --ignore-scripts/);
+  assert.match(WF, /KESTROVA_CLI_VERSION: \d+\.\d+\.\d+ /);                         // exact version, never a range or tag
+  assert.match(WF, /npm install --ignore-scripts --no-audit --no-fund --prefix "\$RUNNER_TEMP\/kestrova" "kestrova-scan@\$KESTROVA_CLI_VERSION"/);
+  assert.doesNotMatch(CODE, /github\.com\/som2026|git clone/);
   assert.doesNotMatch(CODE, /npm (run|test|install)(?! --ignore-scripts)|npx |forge |hardhat /);
   assert.match(WF, /KESTROVA_FAIL_ON: none/);
   // untrusted values reach the shell only through env vars, never ${{ }} inside run:
@@ -49,7 +52,8 @@ async function prCheckout() {
   write(root, { "src/Lib.sol": contract("Lib", "// REENTRANCY_BUG") });
   sh(root, ["commit", "-qam", "pr change"]);
   const runner = stateDir();
-  fs.symlinkSync(REPO, path.join(runner, "kestrova"));                    // the pinned CLI checkout
+  fs.mkdirSync(path.join(runner, "kestrova", "node_modules"), { recursive: true });
+  fs.symlinkSync(path.join(REPO, "cli"), path.join(runner, "kestrova", "node_modules", "kestrova-scan"));  // the pinned npm install
   return { root, runner };
 }
 

@@ -114,9 +114,9 @@ Foundry has no plugin system, so the integration is a CLI that understands Found
 
 ```bash
 cd my-foundry-project
-node /path/to/kestrova-solidity-security/cli/bin/kestrova-scan.mjs --dry-run      # what would be uploaded
-node /path/to/kestrova-solidity-security/cli/bin/kestrova-scan.mjs                # free preview of src/
-node /path/to/kestrova-solidity-security/cli/bin/kestrova-scan.mjs src/Vault.sol  # one contract + its imports
+npx kestrova-scan --dry-run      # what would be uploaded
+npx kestrova-scan                # free preview of src/
+npx kestrova-scan src/Vault.sol  # one contract + its imports
 ```
 
 The tool:
@@ -128,7 +128,7 @@ Optional `Makefile` target:
 
 ```make
 kestrova:  ## free Kestrova preview of src/ (fails on High findings)
-	node $(KESTROVA)/cli/bin/kestrova-scan.mjs --fail-on high
+	npx --yes kestrova-scan@0.1.1 --fail-on high
 ```
 
 ## 6. Hardhat
@@ -141,8 +141,7 @@ kestrova:  ## free Kestrova preview of src/ (fails on High findings)
 }
 ```
 
-Until `kestrova-scan` is published to npm, use
-`"kestrova": "node /path/to/kestrova-solidity-security/cli/bin/kestrova-scan.mjs contracts"`.
+Add `kestrova-scan` as a dev dependency (`npm install -D kestrova-scan`) so the scripts above resolve it.
 
 Imports from `node_modules` (such as `@openzeppelin/contracts`) are resolved, and only the imported files are uploaded,
 renamed to service-safe paths (`node_modules/_openzeppelin/...`) without changing any line numbers.

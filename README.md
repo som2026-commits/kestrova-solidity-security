@@ -29,8 +29,8 @@ The `?src=` tag only attributes installs in Kestrova's aggregate usage log. The 
 ## Use it in your Foundry or Hardhat project
 
 ```bash
-node cli/bin/kestrova-scan.mjs --dry-run   # exactly which .sol files would be uploaded (only targets + their imports)
-node cli/bin/kestrova-scan.mjs             # free preview of src/ (Foundry) or contracts/ (Hardhat)
+npx kestrova-scan --dry-run             # exactly which .sol files would be uploaded (only targets + their imports)
+npx kestrova-scan                       # free preview of src/ (Foundry) or contracts/ (Hardhat)
 ```
 
 - **5-minute start:** [docs/QUICKSTART.md](docs/QUICKSTART.md).

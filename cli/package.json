@@ -1,7 +1,7 @@
 {
   "name": "kestrova-scan",
-  "version": "0.1.0",
-  "description": "Free Slither preview of Foundry/Hardhat Solidity projects via Kestrova. Uploads only your .sol targets and their imports. Not an audit.",
+  "version": "0.1.1",
+  "description": "Solidity security scanner CLI: free Slither static analysis preview for Foundry & Hardhat smart contracts, change-aware pre-commit/CI checks, SARIF, and MCP setup for AI coding agents (Claude Code, Cursor, Codex). Not an audit.",
   "type": "module",
   "bin": {
     "kestrova-scan": "bin/kestrova-scan.mjs"
@@ -9,7 +9,11 @@
   "files": [
     "bin",
     "lib",
-    "README.md"
+    "README.md",
+    ".claude-plugin",
+    ".mcp.json",
+    "skills",
+    "claude-marketplace.json"
   ],
   "engines": {
     "node": ">=18"
@@ -19,11 +23,27 @@
   },
   "keywords": [
     "solidity",
+    "smart-contract",
+    "smart-contract-security",
+    "security",
+    "security-scanner",
+    "static-analysis",
     "slither",
+    "vulnerability",
+    "vulnerability-scanner",
+    "audit",
+    "ethereum",
+    "evm",
     "foundry",
     "hardhat",
-    "security",
+    "pre-commit",
+    "ci",
+    "sarif",
+    "github-actions",
     "mcp",
+    "claude-code",
+    "cursor",
+    "ai-agents",
     "x402"
   ],
   "license": "MIT",

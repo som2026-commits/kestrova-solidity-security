@@ -11,6 +11,7 @@ import { ServiceError, VERSION, preview, serviceUrl, terms } from "../lib/client
 import { RANK, compareReports, comparePreviews, gate, renderMarkdown, renderText } from "../lib/compare.mjs";
 import { HookError, installHook, uninstallHook } from "../lib/hook.mjs";
 import { toSarif } from "../lib/sarif.mjs";
+import { setupText } from "../lib/setup.mjs";
 import { cacheGet, cachePut, hasConsent, loadBaseline, saveBaseline, saveConsent, sourcesKey, stateDir } from "../lib/state.mjs";
 import { gitTop } from "../lib/sources.mjs";
 import { findRoot } from "../lib/project.mjs";
@@ -28,6 +29,8 @@ Daily use:
   kestrova-scan --install-hook      optional pre-commit hook (advisory; add --enforce to block). --uninstall-hook
   kestrova-scan --dry-run [...]     list exactly which files would be uploaded, then stop (no network)
   kestrova-scan [targets...]        plain preview (default: Foundry "src", Hardhat "contracts")
+  kestrova-scan --setup [CLIENT]    print how to connect Kestrova to claude | cursor | vscode | codex | gemini
+                                    (prints only; edits nothing)
 
 Options:
   --fail-on LEVEL      high | medium | low | none (default none). Plain scans: exit 1 on findings at LEVEL or worse.
@@ -68,6 +71,7 @@ function parse(argv) {
     else if (a === "--allow-secret-pattern") o.allowSecrets = true;
     else if (a === "--full-limits") o.full = true;
     else if (a === "--terms") o.terms = true;
+    else if (a === "--setup") { o.setup = true; if (argv[i + 1] && !argv[i + 1].startsWith("-")) o.setupClient = argv[++i]; }
     else if (a === "--yes" || a === "-y") o.yes = true;
     else if (a === "--no-cache") o.noCache = true;
     else if (a === "--changed") o.changed = true;
@@ -113,6 +117,7 @@ export async function main(argv, { out = console.log, err = console.error, fetch
   try { o = parse(argv); } catch (e) { err(`${e.message}\n\n${HELP}`); return 2; }
   if (o.help) { out(HELP); return 0; }
   if (o.version) { out(VERSION); return 0; }
+  if (o.setup) { try { out(setupText(o.setupClient)); return 0; } catch (e) { err(e.message); return 2; } }
   if (!(o.failOn in RANK)) { err("--fail-on must be high, medium, low or none"); return 2; }
   cwd = path.resolve(cwd, o.cwd || ".");
   // Treat a git revision given right after --changed as the base (e.g. "--changed main").

@@ -1,7 +1,7 @@
 // HTTP client for Kestrova's FREE endpoints. This module has no payment code: it never signs, never sends a
 // PAYMENT-SIGNATURE / X-PAYMENT header and never retries a paid request. `terms()` only reads the public 402 offer.
 export const DEFAULT_URL = "https://kestrova.onrender.com";
-export const VERSION = "0.1.0";
+export const VERSION = "0.1.1";
 
 export class ServiceError extends Error {
   constructor(message, status, body) { super(message); this.status = status; this.body = body; }

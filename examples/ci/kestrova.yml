@@ -4,8 +4,8 @@
 # Security model:
 #   - `pull_request` (not pull_request_target): fork PRs get a read-only token and no secrets; none are used anyway.
 #   - PR code is untrusted: it is only READ (.sol files, foundry.toml, remappings.txt). No project scripts run:
-#     dependencies are installed with --ignore-scripts, and the Kestrova CLI comes from a pinned copy of the Kestrova
-#     repository, never from the pull request.
+#     dependencies are installed with --ignore-scripts, and the Kestrova CLI is an exact, immutable npm version
+#     (kestrova-scan, no dependencies) installed outside the checkout, never from the pull request.
 #   - The checkout does not persist the token. Nothing is paid; the free preview is rate-limited per IP, so service
 #     and rate-limit errors never fail the check.
 name: Kestrova
@@ -23,7 +23,7 @@ jobs:
     timeout-minutes: 10
     env:
       KESTROVA_FAIL_ON: none          # advisory. Set to high or medium to fail the check on NEW findings only.
-      KESTROVA_CLI_REF: main          # pin to a reviewed commit SHA of kestrova-solidity-security
+      KESTROVA_CLI_VERSION: 0.1.1     # exact npm version of kestrova-scan (npm versions are immutable)
     steps:
       - uses: actions/checkout@v4
         with:
@@ -36,16 +36,15 @@ jobs:
       - name: Install Solidity dependencies without running any package scripts
         run: |
           if [ -f package-lock.json ]; then npm ci --ignore-scripts --no-audit --no-fund; fi
-      - name: Fetch the Kestrova CLI (pinned, never from the pull request)
+      - name: Install the Kestrova CLI (exact npm version, outside the checkout, no scripts)
         run: |
-          git clone --quiet https://github.com/som2026-commits/kestrova-solidity-security "$RUNNER_TEMP/kestrova"
-          git -C "$RUNNER_TEMP/kestrova" checkout --quiet "$KESTROVA_CLI_REF"
+          npm install --ignore-scripts --no-audit --no-fund --prefix "$RUNNER_TEMP/kestrova" "kestrova-scan@$KESTROVA_CLI_VERSION"
       - name: Kestrova changed-file check
         env:
           BASE_REF: ${{ github.base_ref }}
         run: |
           set +e
-          node "$RUNNER_TEMP/kestrova/cli/bin/kestrova-scan.mjs" --changed "origin/$BASE_REF" --yes \
+          node "$RUNNER_TEMP/kestrova/node_modules/kestrova-scan/bin/kestrova-scan.mjs" --changed "origin/$BASE_REF" --yes \
             --fail-on "$KESTROVA_FAIL_ON" --summary-md "$GITHUB_STEP_SUMMARY" --state-dir "$RUNNER_TEMP/kestrova-state"
           code=$?
           case "$code" in
