@@ -66,6 +66,12 @@ test("bundled Claude Code plugin: manifest, skill, MCP config and an npm-sourced
   assert.equal(p.version, plugin.version);
   assert.deepEqual(p.source, { source: "npm", package: "kestrova-scan", version: VERSION });
   assert.equal(json(path.join(CLI, "package.json")).version, VERSION);
+  // The installed package directory is itself a marketplace (`claude plugin marketplace add <pkg dir>`): Claude Code
+  // 2.1.316 fails to load a single-file marketplace ("cache-miss"), but loads a directory one.
+  const local = json(path.join(CLI, ".claude-plugin/marketplace.json"));
+  assert.deepEqual({ ...local, plugins: [{ ...local.plugins[0], source: null }] }, { ...m, plugins: [{ ...p, source: null }] });
+  assert.equal(local.plugins[0].source, "./");
+  assert.match(fs.readFileSync(path.join(CLI, "README.md"), "utf8"), /claude plugin marketplace add "\$\(npm root -g\)\/kestrova-scan"\n/);
 });
 
 test("npm README: real commands only, honest pricing, no dead GitHub links", () => {

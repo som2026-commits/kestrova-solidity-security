@@ -128,7 +128,7 @@ Optional `Makefile` target:
 
 ```make
 kestrova:  ## free Kestrova preview of src/ (fails on High findings)
-	npx --yes kestrova-scan@0.1.1 --fail-on high
+	npx --yes kestrova-scan@0.1.2 --fail-on high
 ```
 
 ## 6. Hardhat

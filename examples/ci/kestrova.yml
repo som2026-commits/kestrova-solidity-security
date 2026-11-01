@@ -23,7 +23,7 @@ jobs:
     timeout-minutes: 10
     env:
       KESTROVA_FAIL_ON: none          # advisory. Set to high or medium to fail the check on NEW findings only.
-      KESTROVA_CLI_VERSION: 0.1.1     # exact npm version of kestrova-scan (npm versions are immutable)
+      KESTROVA_CLI_VERSION: 0.1.2     # exact npm version of kestrova-scan (npm versions are immutable)
     steps:
       - uses: actions/checkout@v4
         with:
