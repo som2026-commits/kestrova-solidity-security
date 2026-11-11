@@ -1,7 +1,7 @@
 {
   "mcpServers": {
     "kestrova": {
-      "url": "https://kestrova.onrender.com/mcp?src=cursor"
+      "url": "https://kestrova-api.onrender.com/mcp?src=cursor"
     }
   }
 }

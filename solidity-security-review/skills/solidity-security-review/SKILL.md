@@ -27,7 +27,7 @@ Skip it for comment-only or formatting-only edits.
 ## Connect (once)
 Kestrova is a remote MCP server: Streamable HTTP, no API key, no account.
 
-- URL: `https://kestrova.onrender.com/mcp`
+- URL: `https://kestrova-api.onrender.com/mcp`
 - Tools:
   - `scan_solidity_preview` (free);
   - `scan_solidity_full` (paid, 1 USDC);
@@ -37,13 +37,13 @@ If the `kestrova` tools are not available, set the server up. Per-agent commands
 Claude Code:
 
 ```
-claude mcp add --transport http kestrova https://kestrova.onrender.com/mcp
+claude mcp add --transport http kestrova https://kestrova-api.onrender.com/mcp
 ```
 
 Without MCP, use plain HTTPS. The free preview needs no setup:
 
 ```
-POST https://kestrova.onrender.com/preview
+POST https://kestrova-api.onrender.com/preview
 content-type: application/json
 
 {"sources": {"src/Vault.sol": "<source>"}}
@@ -108,7 +108,7 @@ The first request after the service has been idle can take up to a minute.
 The wallet that signed the payment proves ownership with a message signature. This is never a transaction.
 
 1. Request a challenge:
-   `POST https://kestrova.onrender.com/scan/recover {"payment": "<signed payment>", "wallet": "<signer>", "action": "challenge"}`.
+   `POST https://kestrova-api.onrender.com/scan/recover {"payment": "<signed payment>", "wallet": "<signer>", "action": "challenge"}`.
 2. The same wallet signs the returned `message` text (ed25519).
 3. Send `{"payment", "wallet", "message", "token", "expires", "signature": "<base64>"}` to the same endpoint.
 4. You get the original report.

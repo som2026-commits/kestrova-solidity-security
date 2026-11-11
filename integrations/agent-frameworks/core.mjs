@@ -4,7 +4,7 @@
 // passes BOTH an x402-capable `paymentFetch` (e.g. a fetch wrapped by their own x402 client and wallet) AND a
 // `maxPaymentUsd` cap; the price in the server's 402 offer is checked against the cap BEFORE paymentFetch is called.
 // Without them, paid actions return the price and how to enable payment, and nothing is paid.
-export const DEFAULT_URL = "https://kestrova.onrender.com";
+export const DEFAULT_URL = "https://kestrova-api.onrender.com";
 export const VERSION = "0.1.0";
 const UA = `kestrova-agent-tools/${VERSION}`;
 

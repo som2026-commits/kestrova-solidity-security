@@ -51,7 +51,7 @@ Options:
   --terms              show the current paid-scan terms (reads the public 402 offer; never pays)
   --cwd DIR            project directory (default: current directory)
   --state-dir DIR      local state directory (default: <project>/.kestrova)
-  --url URL            service URL (default https://kestrova.onrender.com or $KESTROVA_URL)
+  --url URL            service URL (default https://kestrova-api.onrender.com or $KESTROVA_URL)
   -h, --help, --version
 
 Only .sol files are read; only your targets and the files they import are uploaded. No telemetry. The free preview

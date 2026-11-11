@@ -12,9 +12,9 @@ There is nothing to install for the analysis itself: no solc, no Python.
 
 | Agent | One step |
 |---|---|
-| Claude Code | `claude mcp add --transport http kestrova "https://kestrova.onrender.com/mcp?src=claude"` |
-| Cursor | Settings, then MCP, then add `{"mcpServers": {"kestrova": {"url": "https://kestrova.onrender.com/mcp?src=cursor"}}}` to `~/.cursor/mcp.json` |
-| VS Code (Copilot agent mode) | `code --add-mcp '{"name":"kestrova","type":"http","url":"https://kestrova.onrender.com/mcp?src=vscode"}'` |
+| Claude Code | `claude mcp add --transport http kestrova "https://kestrova-api.onrender.com/mcp?src=claude"` |
+| Cursor | Settings, then MCP, then add `{"mcpServers": {"kestrova": {"url": "https://kestrova-api.onrender.com/mcp?src=cursor"}}}` to `~/.cursor/mcp.json` |
+| VS Code (Copilot agent mode) | `code --add-mcp '{"name":"kestrova","type":"http","url":"https://kestrova-api.onrender.com/mcp?src=vscode"}'` |
 
 Then ask your agent:
 

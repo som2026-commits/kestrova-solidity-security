@@ -4,7 +4,7 @@ Kestrova is an independent service. The setups below use each tool's **standard,
 configuration, npm scripts, a Hardhat task). They are **not official integrations** of Anthropic, Cursor, Microsoft,
 Foundry/Paradigm, Nomic Foundation or Trail of Bits.
 
-**Service:** `https://kestrova.onrender.com`. MCP (Streamable HTTP, no auth): `https://kestrova.onrender.com/mcp`.
+**Service:** `https://kestrova-api.onrender.com`. MCP (Streamable HTTP, no auth): `https://kestrova-api.onrender.com/mcp`.
 The `?src=` tag in the URLs below only attributes installs in Kestrova's aggregate usage log, with no personal data.
 
 | Tool | Cost | What it returns |
@@ -22,8 +22,8 @@ wallet client and your explicit approval each time.
 
 ```bash
 # user scope (all projects)
-claude mcp add --transport http kestrova "https://kestrova.onrender.com/mcp?src=claude"
-claude mcp list            # expect: kestrova: https://kestrova.onrender.com/mcp?src=claude (HTTP) - √ Connected
+claude mcp add --transport http kestrova "https://kestrova-api.onrender.com/mcp?src=claude"
+claude mcp list            # expect: kestrova: https://kestrova-api.onrender.com/mcp?src=claude (HTTP) - √ Connected
 ```
 
 Project scope (commit it so your team gets it): copy [`configs/claude-mcp.json`](../configs/claude-mcp.json) to
@@ -32,7 +32,7 @@ Project scope (commit it so your team gets it): copy [`configs/claude-mcp.json`]
 Skill and MCP in one step:
 `/plugin marketplace add som2026-commits/kestrova-solidity-security`, then
 `/plugin install solidity-security-review@kestrova`. If the code host is unreachable, save
-`https://kestrova.onrender.com/skill` as `.claude/skills/solidity-security-review/SKILL.md`. That route is prepared
+`https://kestrova-api.onrender.com/skill` as `.claude/skills/solidity-security-review/SKILL.md`. That route is prepared
 and goes live with the next service update.
 
 **Example workflow:**
@@ -48,11 +48,11 @@ and goes live with the next service update.
 [`configs/cursor-mcp.json`](../configs/cursor-mcp.json):
 
 ```json
-{ "mcpServers": { "kestrova": { "url": "https://kestrova.onrender.com/mcp?src=cursor" } } }
+{ "mcpServers": { "kestrova": { "url": "https://kestrova-api.onrender.com/mcp?src=cursor" } } }
 ```
 
 One-click install link (Cursor's MCP deeplink; the config is base64 of the JSON above):
-`cursor://anysphere.cursor-deeplink/mcp/install?name=kestrova&config=eyJ1cmwiOiJodHRwczovL2tlc3Ryb3ZhLm9ucmVuZGVyLmNvbS9tY3A/c3JjPWN1cnNvciJ9`
+`cursor://anysphere.cursor-deeplink/mcp/install?name=kestrova&config=eyJ1cmwiOiJodHRwczovL2tlc3Ryb3ZhLWFwaS5vbnJlbmRlci5jb20vbWNwP3NyYz1jdXJzb3IifQ==`
 
 Optional project rule (`.cursor/rules/solidity-security.mdc`) so the agent checks contracts on its own:
 
@@ -74,14 +74,14 @@ This is automated analysis, not an audit.
 `.vscode/mcp.json`, from [`configs/vscode-mcp.json`](../configs/vscode-mcp.json):
 
 ```json
-{ "servers": { "kestrova": { "type": "http", "url": "https://kestrova.onrender.com/mcp?src=vscode" } } }
+{ "servers": { "kestrova": { "type": "http", "url": "https://kestrova-api.onrender.com/mcp?src=vscode" } } }
 ```
 
 Or from a terminal:
-`code --add-mcp '{"name":"kestrova","type":"http","url":"https://kestrova.onrender.com/mcp?src=vscode"}'`
+`code --add-mcp '{"name":"kestrova","type":"http","url":"https://kestrova-api.onrender.com/mcp?src=vscode"}'`
 
 Install link (VS Code's `vscode:mcp/install` handler; check that your VS Code version supports it):
-`vscode:mcp/install?%7B%22name%22%3A%22kestrova%22%2C%22type%22%3A%22http%22%2C%22url%22%3A%22https%3A%2F%2Fkestrova.onrender.com%2Fmcp%3Fsrc%3Dvscode%22%7D`
+`vscode:mcp/install?%7B%22name%22%3A%22kestrova%22%2C%22type%22%3A%22http%22%2C%22url%22%3A%22https%3A%2F%2Fkestrova-api.onrender.com%2Fmcp%3Fsrc%3Dvscode%22%7D`
 
 Add the same instruction as the Cursor rule to `.github/copilot-instructions.md`
 (see [`configs/AGENTS.snippet.md`](../configs/AGENTS.snippet.md)).
@@ -128,7 +128,7 @@ Optional `Makefile` target:
 
 ```make
 kestrova:  ## free Kestrova preview of src/ (fails on High findings)
-	npx --yes kestrova-scan@0.1.2 --fail-on high
+	npx --yes kestrova-scan@0.1.3 --fail-on high
 ```
 
 ## 6. Hardhat

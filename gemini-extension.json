@@ -5,7 +5,7 @@
   "contextFileName": "GEMINI.md",
   "mcpServers": {
     "kestrova": {
-      "httpUrl": "https://kestrova.onrender.com/mcp?src=gemini"
+      "httpUrl": "https://kestrova-api.onrender.com/mcp?src=gemini"
     }
   }
 }

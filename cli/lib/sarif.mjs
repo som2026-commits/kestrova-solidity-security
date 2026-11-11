@@ -36,7 +36,7 @@ export function toSarif(report, { toolVersion = "0.1.0" } = {}) {
       properties: { impact: f.impact, confidence: f.confidence } });
   }
   return { $schema: "https://json.schemastore.org/sarif-2.1.0.json", version: "2.1.0",
-    runs: [{ tool: { driver: { name: "Kestrova (Slither)", version: toolVersion, informationUri: "https://kestrova.onrender.com",
+    runs: [{ tool: { driver: { name: "Kestrova (Slither)", version: toolVersion, informationUri: "https://kestrova-api.onrender.com",
       rules: [...rules.values()] } }, results,
       properties: { note: "Automated static analysis, not an audit. Zero findings does not mean a contract is safe." } }] };
 }

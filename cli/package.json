@@ -1,6 +1,6 @@
 {
   "name": "kestrova-scan",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "Solidity security scanner CLI: free Slither static analysis preview for Foundry & Hardhat smart contracts, change-aware pre-commit/CI checks, SARIF, and MCP setup for AI coding agents (Claude Code, Cursor, Codex). Not an audit.",
   "author": "Kestrova <kestrova.security@gmail.com>",
   "type": "module",
@@ -48,7 +48,7 @@
     "x402"
   ],
   "license": "MIT",
-  "homepage": "https://kestrova.onrender.com",
+  "homepage": "https://kestrova-api.onrender.com",
   "bugs": {
     "email": "kestrova.security@gmail.com"
   }

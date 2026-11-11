@@ -11,7 +11,7 @@ import { VERSION } from "../lib/client.mjs";
 const CLI = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const REPO = path.resolve(CLI, "..");
 const json = (p) => JSON.parse(fs.readFileSync(p, "utf8"));
-const MCP = "https://kestrova.onrender.com/mcp";
+const MCP = "https://kestrova-api.onrender.com/mcp";
 
 async function run(argv) {
   const out = [], err = [];
@@ -46,7 +46,7 @@ test("--setup snippets match the repository's tested client configs exactly", ()
   // Cursor deeplink carries base64 of {"url": ...}; Codex uses the documented `--url` flag.
   const link = setupText("cursor").match(/config=([A-Za-z0-9+/=]+)/)[1];
   assert.deepEqual(JSON.parse(Buffer.from(link, "base64").toString()), { url: `${MCP}?src=cursor` });
-  assert.match(setupText("codex"), /codex mcp add kestrova --url "https:\/\/kestrova\.onrender\.com\/mcp\?src=codex"/);
+  assert.match(setupText("codex"), /codex mcp add kestrova --url "https:\/\/kestrova-api\.onrender\.com\/mcp\?src=codex"/);
 });
 
 test("bundled Claude Code plugin: manifest, skill, MCP config and an npm-sourced marketplace pinned to this version", () => {

@@ -4,5 +4,5 @@
 set -eu
 f="${1:?usage: preview.sh Contract.sol}"
 python3 -c 'import json,sys; print(json.dumps({"sources": {sys.argv[1]: open(sys.argv[1], encoding="utf-8").read()}}))' "$f" |
-  curl -sS -X POST "${KESTROVA_URL:-https://kestrova.onrender.com}/preview?src=example" -H 'content-type: application/json' --data-binary @-
+  curl -sS -X POST "${KESTROVA_URL:-https://kestrova-api.onrender.com}/preview?src=example" -H 'content-type: application/json' --data-binary @-
 echo

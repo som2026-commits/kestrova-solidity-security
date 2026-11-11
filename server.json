@@ -8,7 +8,7 @@
   "remotes": [
     {
       "type": "streamable-http",
-      "url": "https://kestrova.onrender.com/mcp?src=registry"
+      "url": "https://kestrova-api.onrender.com/mcp?src=registry"
     }
   ],
   "repository": {

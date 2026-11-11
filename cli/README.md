@@ -39,11 +39,11 @@ Foundry `src`, `remappings.txt`, `foundry.toml` remappings and `lib/<name>/src` 
 
 ## AI coding agents (MCP)
 
-Kestrova is also a remote MCP server (Streamable HTTP, no API key, no account) at `https://kestrova.onrender.com/mcp`.
+Kestrova is also a remote MCP server (Streamable HTTP, no API key, no account) at `https://kestrova-api.onrender.com/mcp`.
 
 ```bash
-claude mcp add --transport http kestrova "https://kestrova.onrender.com/mcp?src=claude"   # Claude Code
-codex mcp add kestrova --url "https://kestrova.onrender.com/mcp?src=codex"                 # OpenAI Codex CLI
+claude mcp add --transport http kestrova "https://kestrova-api.onrender.com/mcp?src=claude"   # Claude Code
+codex mcp add kestrova --url "https://kestrova-api.onrender.com/mcp?src=codex"                 # OpenAI Codex CLI
 npx kestrova-scan --setup cursor                                                          # Cursor, VS Code, Gemini: prints the config
 ```
 
@@ -68,7 +68,7 @@ claude plugin install solidity-security-review@kestrova
 - name: Kestrova (free preview of changed contracts)
   run: |
     set +e
-    npx --yes kestrova-scan@0.1.2 --changed "origin/${{ github.base_ref }}" --yes --summary-md "$GITHUB_STEP_SUMMARY"
+    npx --yes kestrova-scan@0.1.3 --changed "origin/${{ github.base_ref }}" --yes --summary-md "$GITHUB_STEP_SUMMARY"
     code=$?
     if [ "$code" = 3 ]; then echo "::warning::Kestrova unavailable or rate-limited; not blocking"; exit 0; fi
     exit $code
@@ -106,4 +106,4 @@ professional audit.
 **Exit codes:** `0` ok · `1` `--fail-on` threshold reached · `2` usage or collection problem (nothing sent) ·
 `3` service unreachable or rate-limited (nothing charged).
 
-Support: kestrova.security@gmail.com · Service: https://kestrova.onrender.com · License: MIT
+Support: kestrova.security@gmail.com · Service: https://kestrova-api.onrender.com · License: MIT

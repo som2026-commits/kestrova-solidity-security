@@ -2,7 +2,7 @@
   "servers": {
     "kestrova": {
       "type": "http",
-      "url": "https://kestrova.onrender.com/mcp?src=vscode"
+      "url": "https://kestrova-api.onrender.com/mcp?src=vscode"
     }
   }
 }

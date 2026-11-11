@@ -33,7 +33,7 @@ The only accepted terms are below. Compare every field; if any differs, refuse a
 
 ## Over HTTP
 
-1. `POST https://kestrova.onrender.com/scan` with `{"sources": {...}}` returns **402**.
+1. `POST https://kestrova-api.onrender.com/scan` with `{"sources": {...}}` returns **402**.
    - The `PAYMENT-REQUIRED` response header holds base64-encoded JSON with the terms above.
 2. Create the payment from those terms.
 3. Repeat the identical request with header `PAYMENT-SIGNATURE: <base64 PaymentPayload>`.
@@ -67,7 +67,7 @@ or delivered twice. Signing a *new* payment after an unclear outcome *can* charg
 1. Ask for a challenge:
 
    ```
-   POST https://kestrova.onrender.com/scan/recover
+   POST https://kestrova-api.onrender.com/scan/recover
    {"payment": "<base64 PaymentPayload>", "wallet": "<signer address>", "action": "challenge"}
    ```
 
@@ -79,7 +79,7 @@ or delivered twice. Signing a *new* payment after an unclear outcome *can* charg
 3. Send it back:
 
    ```
-   POST https://kestrova.onrender.com/scan/recover
+   POST https://kestrova-api.onrender.com/scan/recover
    {"payment": "...", "wallet": "...", "message": "...", "token": "...", "expires": 1793500000, "signature": "<base64 ed25519 signature>"}
    ```
 

@@ -2,7 +2,7 @@
   "mcpServers": {
     "kestrova": {
       "type": "http",
-      "url": "https://kestrova.onrender.com/mcp?src=claude"
+      "url": "https://kestrova-api.onrender.com/mcp?src=claude"
     }
   }
 }

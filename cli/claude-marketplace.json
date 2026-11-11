@@ -13,7 +13,7 @@
       "source": {
         "source": "npm",
         "package": "kestrova-scan",
-        "version": "0.1.2"
+        "version": "0.1.3"
       },
       "description": "Solidity security review: free Slither preview for contracts your agent writes or deploys; optional full line-level report for 1 USDC on Solana via x402 (asks first; recovers paid reports). Not an audit.",
       "version": "0.3.0",

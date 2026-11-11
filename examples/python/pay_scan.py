@@ -25,7 +25,7 @@ from pathlib import Path
 
 import httpx
 
-BASE_URL = os.environ.get("KESTROVA_URL", "https://kestrova.onrender.com").rstrip("/")
+BASE_URL = os.environ.get("KESTROVA_URL", "https://kestrova-api.onrender.com").rstrip("/")
 NETWORK = "solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp"
 USDC = "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v"
 PAY_TO = "CWJdBXpfaARqqWA6XrDXsVGVcZMM8rMcQbSfLqFwNeqc"

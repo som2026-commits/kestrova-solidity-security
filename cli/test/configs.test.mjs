@@ -7,7 +7,7 @@ import { fileURLToPath } from "node:url";
 
 const REPO = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
 const read = (p) => fs.readFileSync(path.join(REPO, p), "utf8");
-const MCP = "https://kestrova.onrender.com/mcp";
+const MCP = "https://kestrova-api.onrender.com/mcp";
 
 test("client configs have the exact shape each client expects", () => {
   const claude = JSON.parse(read("configs/claude-mcp.json")).mcpServers.kestrova;

@@ -1,6 +1,6 @@
 // `kestrova-scan --setup [client]`: prints the exact, documented way to connect Kestrova's remote MCP server to an AI
 // coding agent. It only PRINTS: it never edits a config file, installs anything or contacts the network.
-const MCP = "https://kestrova.onrender.com/mcp";
+const MCP = "https://kestrova-api.onrender.com/mcp";
 const url = (src) => `${MCP}?src=${src}`;
 const b64 = (s) => Buffer.from(s).toString("base64");
 
