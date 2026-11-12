@@ -68,7 +68,7 @@ claude plugin install solidity-security-review@kestrova
 - name: Kestrova (free preview of changed contracts)
   run: |
     set +e
-    npx --yes kestrova-scan@0.1.3 --changed "origin/${{ github.base_ref }}" --yes --summary-md "$GITHUB_STEP_SUMMARY"
+    npx --yes kestrova-scan@0.1.4 --changed "origin/${{ github.base_ref }}" --yes --summary-md "$GITHUB_STEP_SUMMARY"
     code=$?
     if [ "$code" = 3 ]; then echo "::warning::Kestrova unavailable or rate-limited; not blocking"; exit 0; fi
     exit $code
@@ -81,9 +81,9 @@ is rate-limited per IP, so exit code 3 is a warning, not a failure. Add `--fail-
 
 | | Free preview | Full report (optional) |
 |---|---|---|
-| Price | Free, rate-limited | 1.00 USDC per scan via x402 on Solana, charged only if the scan succeeds |
+| Price | Free, rate-limited | 1.00 USDC per scan via x402 on **Base or Solana**, charged only if the scan succeeds |
 | Output | Severity counts, High/Medium detector names | Every finding: detector, severity, confidence, file and line numbers |
-| How | This CLI, MCP or `POST /preview` | Your own x402 wallet client or agent, with your explicit approval |
+| How | This CLI, MCP or `POST /preview` | Your own x402 wallet client or agent, with your explicit approval; or in a browser at https://kestrova-api.onrender.com/scanner with a Base wallet such as Trust Wallet |
 
 This CLI contains **no payment code** and never pays. `kestrova-scan File.sol --bundle vault.json` writes exactly the
 sources a paid scan would analyse. If a payment's outcome is ever unclear, don't pay again: recover the report free

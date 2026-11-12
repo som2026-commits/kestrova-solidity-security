@@ -1,6 +1,6 @@
 ---
 name: solidity-security-review
-description: Security review for Solidity smart contracts with Kestrova (Slither static analysis). Use whenever you write, generate, modify or refactor a Solidity (.sol) contract, prepare one for deployment (Foundry, Hardhat, Remix, scripts), or the user asks for a security review, audit, vulnerability check or "is this contract safe". Runs a free preview first; a full line-level report costs 1 USDC on Solana via x402 and is bought only with the user's approval. Also recovers an already-paid report without paying again.
+description: Security review for Solidity smart contracts with Kestrova (Slither static analysis). Use whenever you write, generate, modify or refactor a Solidity (.sol) contract, prepare one for deployment (Foundry, Hardhat, Remix, scripts), or the user asks for a security review, audit, vulnerability check or "is this contract safe". Runs a free preview first; a full line-level report costs 1 USDC on Base or Solana via x402 and is bought only with the user's approval. Also recovers an already-paid report without paying again.
 ---
 
 # Solidity Security Review (Kestrova)
@@ -71,10 +71,10 @@ The first request after the service has been idle can take up to a minute.
 4. **Optional full report (1.00 USDC).** Use it when High/Medium findings remain and you need exact lines.
    - **Ask the user first, in one message:**
      - the counts and detector names;
-     - the price, 1.00 USDC on Solana mainnet via x402, charged only if the scan succeeds;
+     - the price, 1.00 USDC on Base or Solana mainnet via x402, charged only if the scan succeeds;
      - which wallet will pay.
    - Proceed only on an explicit yes, and only within a spending limit the user set.
-   - **If you or your user have an x402-capable Solana wallet tool,** follow [the payment reference](reference/x402-payment.md).
+   - **If you or your user have an x402-capable Base or Solana wallet tool,** follow [the payment reference](reference/x402-payment.md).
      The short version: call `scan_solidity_full`. Without payment it returns the x402 `PaymentRequired` terms. Check
      them, have the wallet sign exactly those terms, and call again with the signed payment in
      `_meta["x402/payment"]`.
@@ -89,15 +89,26 @@ The first request after the service has been idle can take up to a minute.
    - re-run the free preview.
 
 ## Paying safely (non-negotiable)
-- **Pin the terms. Refuse anything else:**
+- **Pin the terms. Refuse anything else.** Two offers are accepted; pick one.
+- **Solana:**
   - x402 v2, scheme `exact`;
   - network `solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp`;
   - asset USDC `EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v`;
   - amount `1000000`;
   - `payTo` `CWJdBXpfaARqqWA6XrDXsVGVcZMM8rMcQbSfLqFwNeqc`;
   - `extra.feePayer` set by the facilitator (PayAI).
-- **Wallet permissions:** the signer needs 1.00 USDC and no SOL. It signs one SPL `transferChecked`; it never
-  broadcasts. Use a dedicated low-balance signer with a 1.00 USDC per-payment cap.
+- **Base:**
+  - x402 v2, scheme `exact`;
+  - network `eip155:8453`;
+  - asset USDC `0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913` (EIP-712 domain `USD Coin`, version `2`);
+  - amount `1000000`;
+  - `payTo` `0xB40d2B1B0717dA534e4A98463546cA3E58206cA0`;
+  - EIP-3009 `transferWithAuthorization` only: never a token approval or Permit2.
+- **Wallet permissions:**
+  - **Solana:** the signer needs 1.00 USDC and no SOL. It signs one SPL `transferChecked`; it never broadcasts.
+  - **Base:** the signer needs 1.00 USDC on Base and no ETH. It signs one EIP-3009 authorization; the facilitator
+    submits it.
+  - Use a dedicated low-balance signer with a 1.00 USDC per-payment cap.
 - **Never pay twice:**
   - Save the signed payment before sending it.
   - If the result is `pending`, `already_paid`, a timeout, or anything unclear, do **not** sign a new payment.

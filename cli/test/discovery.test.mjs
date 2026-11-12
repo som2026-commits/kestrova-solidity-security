@@ -78,7 +78,7 @@ test("npm README: real commands only, honest pricing, no dead GitHub links", () 
   const md = fs.readFileSync(path.join(CLI, "README.md"), "utf8");
   assert.doesNotMatch(md, /github\.com\/som2026/);
   assert.match(md, /not an audit/i);
-  assert.match(md, /1\.00 USDC per scan via x402 on Solana, charged only if the scan succeeds/);
+  assert.match(md, /1\.00 USDC per scan via x402 on \*\*Base or Solana\*\*, charged only if the scan succeeds/);
   assert.match(md, new RegExp(`kestrova-scan@${VERSION.replace(/\./g, "\\.")}`));
   for (const flag of md.matchAll(/kestrova-scan[^`\n]*?(--[a-z-]+)/g))
     assert.ok(fs.readFileSync(path.join(CLI, "bin/kestrova-scan.mjs"), "utf8").includes(`"${flag[1]}"`), flag[1]);
