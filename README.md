@@ -2,10 +2,12 @@
 
 When your coding agent writes, changes or prepares to deploy a Solidity contract, Kestrova runs a **free** Slither
 static-analysis preview. The agent explains the results without overclaiming, and offers an **optional** full
-line-level report for **1 USDC on Solana** via [x402](https://x402.org), only after you approve it.
+line-level report for **1 USDC**, only after you approve it: agents pay via [x402](https://x402.org) with USDC on
+**Base or Solana**; people can also buy it on the website with a Base wallet.
 
 - **Remote MCP server:** `https://kestrova-api.onrender.com/mcp` (Streamable HTTP, no API key, no account).
-- **Official MCP Registry name:** `io.github.som2026-commits/kestrova`.
+- **Official MCP Registry name:** `com.onrender.kestrova-api/kestrova` (the older `io.github.som2026-commits/kestrova`
+  entry pointed to a retired host and is marked deleted).
 - **Agent-readable summary:** [`/llms.txt`](https://kestrova-api.onrender.com/llms.txt).
 - **OpenAPI:** [`/openapi.json`](https://kestrova-api.onrender.com/openapi.json) (the paid operation carries `x-payment-info`).
 
@@ -43,9 +45,9 @@ npx kestrova-scan                       # free preview of src/ (Foundry) or cont
 - **Examples:** [examples/foundry-vault](examples/foundry-vault), [examples/hardhat-token](examples/hardhat-token).
 
 - **Autonomous agents** (Coinbase AgentKit, Solana Agent Kit):
-  [integrations/agent-frameworks](integrations/agent-frameworks/README.md). Covers the deployed-contract risk check
-  (free preview; 0.05 USDC verdict) and Solidity highlights (0.10 USDC). Payments are off unless you set a wallet
-  client and a cap.
+  [integrations/agent-frameworks](integrations/agent-frameworks/README.md). Only the free Solidity preview action works
+  against the live service today; the contract-risk and highlights actions call endpoints that are **not deployed**
+  (they fail without charging). Payments are off unless you set a wallet client and a cap.
 - **Accuracy:** [docs/ACCURACY.md](docs/ACCURACY.md) (SmartBugs-curated benchmark). **SARIF:**
   `kestrova-scan --to-sarif report.json` for GitHub code scanning.
 
@@ -53,8 +55,8 @@ These use each tool's standard extension points; they are not official integrati
 
 ## Tools
 
-- **`scan_solidity_preview` (free):** severity counts and High/Medium detector names. 60 kB / 20 files, 6 per hour per
-  client.
+- **`scan_solidity_preview` (free):** severity counts and High/Medium detector names. Up to 15 KB / 10 files;
+  rate-limited per client (a few scans per hour).
 - **`scan_solidity_full` (paid, 1.00 USDC):** every finding with detector, impact, confidence and file/line locations.
   Without a payment it returns the x402 terms; it never scans or charges then. You are charged only if the scan
   succeeds.
@@ -70,17 +72,31 @@ curl -s -X POST "https://kestrova-api.onrender.com/preview?src=readme" -H 'conte
 The response contains `counts` and `detectors` (High/Medium detector names), here `reentrancy-eth`. The first call after idle can
 take up to a minute.
 
-## Payment, for autonomous agents
+## Payment
 
-| Field | Value |
-|---|---|
-| Protocol | x402 v2, scheme `exact` (HTTP `PAYMENT-REQUIRED` / `PAYMENT-SIGNATURE`; MCP `_meta["x402/payment"]`) |
-| Price | 1.00 USDC (`1000000` base units) per scan. No other asset or network |
-| Network | Solana mainnet `solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp` |
-| Asset | USDC `EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v` |
-| Pay to | `CWJdBXpfaARqqWA6XrDXsVGVcZMM8rMcQbSfLqFwNeqc` |
-| Fee payer | PayAI facilitator (`extra.feePayer`); the buyer needs **no SOL** |
-| Wallet permission | sign one SPL `transferChecked` of exactly 1.00 USDC; never broadcast, never share keys |
+The free preview never needs a wallet. The optional full report costs **1.00 USDC** and can be bought in two ways.
+
+### For AI agents and scripts: x402 API (`POST /scan` or MCP `scan_solidity_full`), Base or Solana
+
+| Field | Base mainnet | Solana mainnet |
+|---|---|---|
+| Protocol | x402 v2, scheme `exact` (HTTP `PAYMENT-REQUIRED` / `PAYMENT-SIGNATURE`; MCP `_meta["x402/payment"]`) | same |
+| Network | `eip155:8453` | `solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp` |
+| Asset | native USDC `0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913` | USDC `EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v` |
+| Price | exactly `1000000` base units (1.00 USDC) | exactly `1000000` base units (1.00 USDC) |
+| Pay to | `0xB40d2B1B0717dA534e4A98463546cA3E58206cA0` | `CWJdBXpfaARqqWA6XrDXsVGVcZMM8rMcQbSfLqFwNeqc` |
+| Wallet signs | one EIP-3009 `transferWithAuthorization` (no token approval) | one SPL `transferChecked`; never broadcasts |
+| Network fee | paid by the PayAI facilitator; the buyer needs **no ETH** | paid by the PayAI facilitator (`extra.feePayer`); the buyer needs **no SOL** |
+
+No other asset, amount or network is accepted. The 402 response lists both options; your x402 client picks the one
+its wallet supports. Never share keys.
+
+### For people: website checkout (Base only)
+
+Open [kestrova-api.onrender.com](https://kestrova-api.onrender.com), scan your contract and choose the Professional
+Security Report. You pay with a Base wallet (Trust Wallet, Coinbase Wallet, MetaMask): exactly 1 USDC, **native USDC
+on Base Mainnet** (not USDC.e). USDC on other networks is not interchangeable. The website checkout does not accept
+Solana; Solana payments go through the x402 API above.
 
 **Buy one from code (official x402 Python SDK):** [`examples/python/pay_scan.py`](examples/python/pay_scan.py).
 - `python pay_scan.py Vault.sol` is a dry run: it fetches and checks the terms and signs nothing.
@@ -93,6 +109,9 @@ take up to a minute.
   - report delivery;
   - replay refused (409);
   - wallet-signed recovery.
+- **HTTP `POST /scan` on Base mainnet:** tested end to end in November 2026 with an owner-funded test payment and the
+  official `@x402/evm` client: settlement, report delivery and wallet-signed (EIP-191) recovery. A replayed Base
+  authorization is refused; after its 5-minute validity window it is refused with 402 instead of 409.
 - **MCP `scan_solidity_full`:** uses the same payment guard and ledger, and is tested against a simulated facilitator.
   It has not yet settled on mainnet.
 
@@ -115,8 +134,10 @@ Use professional audits and tests for anything holding value.
 
 ## Privacy
 
-- Sources you send are scanned in a temporary directory that is deleted after each scan. The service does not store or
-  log them.
+- Sources you send are scanned in a temporary directory that is deleted after each scan. Your code is never written to
+  logs or a database. Scan results (which quote short excerpts of your code) stay in server memory for up to one hour.
+- For a paid scan, the report (which quotes short excerpts) and the payment record are stored so you can download the
+  report again; the source code itself is not stored.
 - The usage log records route, status, client family and the `src` tag. It never records IP addresses or source code;
   IP addresses are held in memory only for rate limiting.
 - The hosting providers (Render, Cloudflare) may keep their own standard request logs.

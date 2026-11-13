@@ -1,6 +1,6 @@
 ---
 name: solidity-security-review
-description: Security review for Solidity smart contracts with Kestrova (Slither static analysis). Use whenever you write, generate, modify or refactor a Solidity (.sol) contract, prepare one for deployment (Foundry, Hardhat, Remix, scripts), or the user asks for a security review, audit, vulnerability check or "is this contract safe". Runs a free preview first; a full line-level report costs 1 USDC on Solana via x402 and is bought only with the user's approval. Also recovers an already-paid report without paying again.
+description: Security review for Solidity smart contracts with Kestrova (Slither static analysis). Use whenever you write, generate, modify or refactor a Solidity (.sol) contract, prepare one for deployment (Foundry, Hardhat, Remix, scripts), or the user asks for a security review, audit, vulnerability check or "is this contract safe". Runs a free preview first; a full line-level report costs 1 USDC via x402 (Base or Solana) and is bought only with the user's approval. Also recovers an already-paid report without paying again.
 ---
 
 # Solidity Security Review (Kestrova)
@@ -59,11 +59,12 @@ The first request after the service has been idle can take up to a minute.
    - In a Foundry/Hardhat project, `kestrova-scan <File.sol> --bundle out.json` (Kestrova CLI) builds exactly this map
      from local files: only the contract and its imports, with remappings resolved and no `.env` or configs. Use its
      `sources`.
-   - Limits: 60 kB and 20 files. A `pragma solidity` line is required.
+   - Limits: free preview up to 15 KB / 10 files; paid full report up to 60 KB / 20 files. A `pragma solidity`
+     line is required.
 2. **Free preview.**
    - Call `scan_solidity_preview`, or `POST /preview`.
    - It returns severity counts and the names of High/Medium detectors.
-   - It is rate-limited to 6 per hour per client.
+   - It is rate-limited per client (a few scans per hour).
 3. **Act on the preview.**
    - Use the detector names (`reentrancy-eth`, `tx-origin`, `unchecked-send`, `arbitrary-send-eth`, ...) to find and
      fix clear issues yourself.
@@ -71,10 +72,10 @@ The first request after the service has been idle can take up to a minute.
 4. **Optional full report (1.00 USDC).** Use it when High/Medium findings remain and you need exact lines.
    - **Ask the user first, in one message:**
      - the counts and detector names;
-     - the price, 1.00 USDC on Solana mainnet via x402, charged only if the scan succeeds;
+     - the price, 1.00 USDC via x402 on Base or Solana mainnet, charged only if the scan succeeds;
      - which wallet will pay.
    - Proceed only on an explicit yes, and only within a spending limit the user set.
-   - **If you or your user have an x402-capable Solana wallet tool,** follow [the payment reference](reference/x402-payment.md).
+   - **If you or your user have an x402-capable Base (EVM) or Solana wallet tool,** follow [the payment reference](reference/x402-payment.md).
      The short version: call `scan_solidity_full`. Without payment it returns the x402 `PaymentRequired` terms. Check
      them, have the wallet sign exactly those terms, and call again with the signed payment in
      `_meta["x402/payment"]`.

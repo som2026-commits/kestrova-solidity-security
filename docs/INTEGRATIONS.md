@@ -9,7 +9,7 @@ The `?src=` tag in the URLs below only attributes installs in Kestrova's aggrega
 
 | Tool | Cost | What it returns |
 |---|---|---|
-| `scan_solidity_preview` / `POST /preview` | Free (60 kB, rate-limited per IP) | Severity counts and High/Medium detector names |
+| `scan_solidity_preview` / `POST /preview` | Free (up to 15 KB / 10 files, rate-limited per client) | Severity counts and High/Medium detector names |
 | `scan_solidity_full` / `POST /scan` | **1.00 USDC** via x402 `exact` on Solana mainnet, charged only after a successful scan | Every finding: detector, severity, confidence, file and lines |
 | `payment_terms` | Free | Price, recipient, network and how to pay |
 

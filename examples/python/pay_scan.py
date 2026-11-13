@@ -1,5 +1,7 @@
 """Buy one Kestrova full Solidity scan over x402 (1 USDC on Solana mainnet) with the official x402 Python SDK.
 
+This example uses the Solana rail; the API also accepts native USDC on Base mainnet (see the README).
+
     pip install "x402[svm,httpx]==2.25.0" httpx
     python pay_scan.py Vault.sol                       # DRY RUN: fetch and check the payment terms; nothing is signed
     KESTROVA_SIGNER_KEY_FILE=signer.json python pay_scan.py Vault.sol --pay        # sign ONE payment, get the report

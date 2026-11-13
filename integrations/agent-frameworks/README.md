@@ -3,6 +3,11 @@
 These are drop-in actions for agents that touch smart contracts. They use each framework's public extension API and
 are **not official integrations** of Coinbase or SendAI. Automated analysis, **not an audit**.
 
+> **Availability (November 2026):** only `kestrova_solidity_preview` works against the live service
+> (`https://kestrova-api.onrender.com`). The other three actions call endpoints (`/risk/address/preview`,
+> `/risk/address`, `/scan/highlights`) that are **not deployed**: they return an error and never charge. For a paid
+> line-level report today, use `POST /scan` (1 USDC via x402, Base or Solana).
+
 | Action | Cost | Use it |
 |---|---|---|
 | `kestrova_contract_risk_preview` | Free (rate-limited) | Before interacting with a contract: verified? proxy? which privileged controls (mint, pause, blacklist, fee/limit setters, upgrade, owner/roles)? |
@@ -54,7 +59,7 @@ import { z } from "zod";
 import { createKestrovaPlugin } from "./integrations/agent-frameworks/solana-agent-kit.mjs";
 
 const agent = new SolanaAgentKit(wallet, rpcUrl, config).use(createKestrovaPlugin({ z }, {
-  // paymentFetch, maxPaymentUsd: 0.05   // optional; pays in USDC on Solana through your own x402 client
+  // paymentFetch, maxPaymentUsd: 0.05   // optional; pays in USDC through your own x402 client
 }));
 const preview = await agent.methods.kestrovaContractRiskPreview({ chain: "base", address: "0x..." });
 ```

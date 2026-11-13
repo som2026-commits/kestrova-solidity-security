@@ -1,5 +1,7 @@
-# Publishes server.json to the official MCP Registry. Manual trigger only (Actions tab -> Run workflow).
-# GitHub OIDC login: no secrets stored; grants only the io.github.som2026-commits/* namespace for this run.
+# RETIRED for the current entry. server.json is now com.onrender.kestrova-api/kestrova, published by the owner with the
+# registry's HTTP domain authentication (key served at kestrova-api.onrender.com/.well-known/mcp-registry-auth).
+# GitHub OIDC can only grant io.github.som2026-commits/*, so this workflow stops before publishing (guard step below).
+# Manual trigger only (Actions tab -> Run workflow).
 name: Publish to MCP Registry
 
 on:
@@ -16,6 +18,11 @@ jobs:
     env:
       MCP_PUBLISHER_VERSION: v1.8.4
     steps:
+      - name: Refuse when server.json is not in this workflow's namespace
+        run: |
+          echo "server.json is published with HTTP domain authentication, not with this GitHub OIDC workflow."
+          exit 1
+
       - name: Checkout
         uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
         with:
