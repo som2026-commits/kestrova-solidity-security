@@ -53,7 +53,11 @@ The first request after the service has been idle can take up to a minute.
 
 1. **Collect sources.**
    - Build `{"sources": {"path/File.sol": "<source>", ...}}`.
-   - Include the contract and every file it imports, including vendored libraries such as OpenZeppelin.
+   - Include the contract and every file it imports. Package imports stay exactly as written
+     (`import "@openzeppelin/contracts/..."`, `"solady/..."`): put the package files under that same path, under
+     `node_modules/` (npm layout), or under the Foundry folder (`lib/openzeppelin-contracts/contracts/...`,
+     `lib/<name>/src/...`). Package files are reported separately as dependencies.
+   - Projects that need `via_ir` ("Stack too deep") are compiled with via-IR automatically (`compiled_with: "via-ir"`).
    - In a Foundry/Hardhat project, `kestrova-scan <File.sol> --bundle out.json` (Kestrova CLI) builds exactly this map
      from local files: only the contract and its imports, with remappings resolved and no `.env` or configs. Use its
      `sources`.
@@ -61,7 +65,9 @@ The first request after the service has been idle can take up to a minute.
      line is required.
 2. **Free preview.**
    - Call `scan_solidity_preview`, or `POST /preview`.
-   - It returns severity counts and the names of High/Medium detectors.
+   - It returns severity counts, the names of High/Medium detectors, and one real example finding
+     (`sample_finding`: detector, severity and, when there are several findings, its file, line, code and the
+     reviewed fix), preferably from the project's own code; `more_findings` says how many more the full report lists.
    - It is rate-limited per client (a few scans per hour).
 3. **Act on the preview.**
    - Use the detector names (`reentrancy-eth`, `tx-origin`, `unchecked-send`, `arbitrary-send-eth`, ...) to find and

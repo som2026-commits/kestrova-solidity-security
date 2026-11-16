@@ -10,8 +10,8 @@
     {
       "name": "solidity-security-review",
       "source": "./solidity-security-review",
-      "description": "Free Slither security preview for Solidity contracts; optional 1 USDC full report via x402 on Solana (asks first). Not an audit.",
-      "version": "0.2.0"
+      "description": "Free Slither security preview for Solidity contracts your agent writes or deploys; optional 1 USDC full report via x402 on Base or Solana (asks first). Not an audit.",
+      "version": "0.3.0"
     }
   ]
 }
