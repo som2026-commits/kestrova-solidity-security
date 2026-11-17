@@ -62,6 +62,8 @@ These use each tool's standard extension points; they are not official integrati
   succeeds.
 - **`payment_terms` (free):** price, recipient, network, fee payer, wallet requirements, outcomes and recovery.
 
+**Guide:** [How an AI agent pays for a Solidity security scan with x402](docs/agent-pays-for-a-solidity-scan-with-x402.md): free preview, reading the 402 terms, paying 1 USDC on Base or Solana, MCP flow, safety rules.
+
 ## Try it (no install, free)
 
 ```sh
