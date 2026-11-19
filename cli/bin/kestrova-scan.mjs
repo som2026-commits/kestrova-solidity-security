@@ -41,7 +41,7 @@ Options:
   --json               machine-readable output (plain scans: the service's JSON unchanged)
   --summary-md FILE    append a Markdown summary (e.g. "$GITHUB_STEP_SUMMARY")
   --no-cache           ignore cached results (same sources are otherwise not re-uploaded for 7 days)
-  --bundle FILE        write {"sources": ...} for the optional paid report via your own x402 client (1 USDC)
+  --bundle FILE        write {"sources": ...} for an optional paid result via your own x402 client (0.25 or 1 USDC)
   --compare-reports BASE.json CURRENT.json [--renames-from REF] [--scope BUNDLE.json]
                        compare two full reports per finding (offline; no network)
   --to-sarif REPORT.json [--sarif-out FILE]
@@ -198,7 +198,7 @@ async function plainFlow(c) {
   if (o.bundle) {
     fs.writeFileSync(o.bundle, JSON.stringify({ sources: b.sources }, null, 2));
     err(`wrote ${o.bundle}. For the full report send it to POST /scan with your x402 client, or to the MCP tool`
-        + " scan_solidity_full, only with your approval (1 USDC).");
+        + " scan_solidity_findings (0.25 USDC) or scan_solidity_full (1 USDC), only with your approval.");
     if (problems.length) { err(`over the paid-scan limits: ${problems.join(", ")}`); return 2; }
     return 0;
   }
@@ -212,7 +212,7 @@ async function plainFlow(c) {
     out(`Kestrova preview (compiler ${r.compiler || "?"})${cached ? " [cached; nothing uploaded]" : ""}: ${counts}`);
     if ((r.detectors || []).length) out(`High/Medium detectors: ${r.detectors.join(", ")}`);
     if (r.note) out(r.note);
-    out("Full line-level report: optional, 1 USDC via x402, only with your approval (kestrova-scan --terms).");
+    out("Exact lines: optional, 0.25 USDC (findings) or 1 USDC (full report with fixes, PDF, SARIF) via x402, only with your approval (kestrova-scan --terms).");
   }
   const worst = Math.max(0, ...Object.keys(r.counts || {}).map((k) => RANK[k.toLowerCase()] || 0));
   return RANK[o.failOn] && worst >= RANK[o.failOn] ? 1 : 0;

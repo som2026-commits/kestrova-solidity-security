@@ -47,8 +47,8 @@ codex mcp add kestrova --url "https://kestrova-api.onrender.com/mcp?src=codex"  
 npx kestrova-scan --setup cursor                                                          # Cursor, VS Code, Gemini: prints the config
 ```
 
-Tools: `scan_solidity_preview` (free), `payment_terms` (free), `scan_solidity_full` (paid; only with the user's
-approval).
+Tools: `scan_solidity_preview` (free), `payment_terms` (free), `scan_solidity_findings` (0.25 USDC) and
+`scan_solidity_full` (1 USDC), paid only with the user's approval.
 
 **Claude Code plugin** (skill + MCP), bundled in this package:
 
@@ -68,7 +68,7 @@ claude plugin install solidity-security-review@kestrova
 - name: Kestrova (free preview of changed contracts)
   run: |
     set +e
-    npx --yes kestrova-scan@0.1.4 --changed "origin/${{ github.base_ref }}" --yes --summary-md "$GITHUB_STEP_SUMMARY"
+    npx --yes kestrova-scan@0.1.5 --changed "origin/${{ github.base_ref }}" --yes --summary-md "$GITHUB_STEP_SUMMARY"
     code=$?
     if [ "$code" = 3 ]; then echo "::warning::Kestrova unavailable or rate-limited; not blocking"; exit 0; fi
     exit $code
@@ -79,11 +79,13 @@ is rate-limited per IP, so exit code 3 is a warning, not a failure. Add `--fail-
 
 ## Free preview vs. paid full report
 
-| | Free preview | Full report (optional) |
-|---|---|---|
-| Price | Free, rate-limited | 1.00 USDC per scan via x402 on **Base or Solana**, charged only if the scan succeeds |
-| Output | Severity counts, High/Medium detector names | Every finding: detector, severity, confidence, file and line numbers |
-| How | This CLI, MCP or `POST /preview` | Your own x402 wallet client or agent, with your explicit approval; or in a browser at https://kestrova-api.onrender.com/scanner with a Base wallet such as Trust Wallet |
+| | Free preview | Findings (optional) | Full report (optional) |
+|---|---|---|---|
+| Price | Free, rate-limited | 0.25 USDC via x402 on **Base or Solana** | 1.00 USDC via x402 on **Base or Solana** |
+| Output | Severity counts, High/Medium detector names, one example | Every finding: detector, severity, confidence, file and line numbers (JSON) | The same plus a plain-English explanation and fix for each finding, PDF and SARIF |
+| How | This CLI, MCP or `POST /preview` | `POST /scan/findings` or MCP `scan_solidity_findings`, with your own x402 client and your explicit approval | `POST /scan` or MCP `scan_solidity_full`; or in a browser at https://kestrova-api.onrender.com/scanner with a Base wallet such as Trust Wallet |
+
+Both paid options are charged only if the scan succeeds.
 
 This CLI contains **no payment code** and never pays. `kestrova-scan File.sol --bundle vault.json` writes exactly the
 sources a paid scan would analyse. If a payment's outcome is ever unclear, don't pay again: recover the report free

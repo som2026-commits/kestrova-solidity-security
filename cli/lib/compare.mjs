@@ -150,7 +150,7 @@ export function renderText(title, result, scopeLines = []) {
   if (result.counts) out.push("Counts (baseline -> current): " + Object.entries(result.counts)
     .map(([s, [b, c]]) => `${s} ${b ?? "-"}->${c ?? "-"}`).join(", "));
   for (const n of result.notes || []) out.push(`Note: ${n}`);
-  out.push("Automated static analysis, not an audit. Free previews name High/Medium detectors only; exact lines need the optional paid report (1 USDC, your approval).");
+  out.push("Automated static analysis, not an audit. Free previews name High/Medium detectors only; exact lines need an optional paid result (0.25 USDC findings or 1 USDC full report, your approval).");
   return out.join("\n");
 }
 

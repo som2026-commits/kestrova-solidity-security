@@ -1,6 +1,6 @@
 ---
 name: solidity-security-review
-description: Security review for Solidity smart contracts with Kestrova (Slither static analysis). Use whenever you write, generate, modify or refactor a Solidity (.sol) contract, prepare one for deployment (Foundry, Hardhat, Remix, scripts), or the user asks for a security review, audit, vulnerability check or "is this contract safe". Runs a free preview first; a full line-level report costs 1 USDC on Base or Solana via x402 and is bought only with the user's approval. Also recovers an already-paid report without paying again.
+description: Security review for Solidity smart contracts with Kestrova (Slither static analysis). Use whenever you write, generate, modify or refactor a Solidity (.sol) contract, prepare one for deployment (Foundry, Hardhat, Remix, scripts), or the user asks for a security review, audit, vulnerability check or "is this contract safe". Runs a free preview first; every finding with file and line costs 0.25 USDC and the full report with explanations, fixes, PDF and SARIF costs 1 USDC, via x402 (Base or Solana), bought only with the user's approval. Also recovers an already-paid report without paying again.
 ---
 
 # Solidity Security Review (Kestrova)
@@ -30,7 +30,8 @@ Kestrova is a remote MCP server: Streamable HTTP, no API key, no account.
 - URL: `https://kestrova-api.onrender.com/mcp`
 - Tools:
   - `scan_solidity_preview` (free);
-  - `scan_solidity_full` (paid, 1 USDC);
+  - `scan_solidity_findings` (paid, 0.25 USDC: every finding with file and line, JSON);
+  - `scan_solidity_full` (paid, 1 USDC: the same plus an explanation and fix per finding, PDF and SARIF);
   - `payment_terms` (free).
 
 If the `kestrova` tools are not available, set the server up. Per-agent commands: `npx kestrova-scan --setup`. In
@@ -55,27 +56,38 @@ The first request after the service has been idle can take up to a minute.
 
 1. **Collect sources.**
    - Build `{"sources": {"path/File.sol": "<source>", ...}}`.
-   - Include the contract and every file it imports, including vendored libraries such as OpenZeppelin.
+   - Include the contract and every file it imports. Package imports stay exactly as written
+     (`import "@openzeppelin/contracts/..."`, `"solady/..."`): put the package files under that same path, under
+     `node_modules/` (npm layout), or under the Foundry folder (`lib/openzeppelin-contracts/contracts/...`,
+     `lib/<name>/src/...`). Package files are reported separately as dependencies.
+   - Projects that need `via_ir` ("Stack too deep") are compiled with via-IR automatically (`compiled_with: "via-ir"`).
    - In a Foundry/Hardhat project, `npx kestrova-scan <File.sol> --bundle out.json` (Kestrova CLI) builds exactly this map
      from local files: only the contract and its imports, with remappings resolved and no `.env` or configs. Use its
      `sources`.
-   - Limits: 60 kB and 20 files. A `pragma solidity` line is required.
+   - Limits: free preview up to 15 KB / 10 files; paid full report up to 60 KB / 20 files. A `pragma solidity`
+     line is required.
 2. **Free preview.**
    - Call `scan_solidity_preview`, or `POST /preview`.
-   - It returns severity counts and the names of High/Medium detectors.
-   - It is rate-limited to 6 per hour per client.
+   - It returns severity counts, the names of High/Medium detectors, and one real example finding
+     (`sample_finding`: detector, severity and, when there are several findings, its file, line, code and the
+     reviewed fix), preferably from the project's own code; `more_findings` says how many more the full report lists.
+   - It is rate-limited per client (a few scans per hour).
 3. **Act on the preview.**
    - Use the detector names (`reentrancy-eth`, `tx-origin`, `unchecked-send`, `arbitrary-send-eth`, ...) to find and
      fix clear issues yourself.
    - Re-run the preview to confirm the count drops.
-4. **Optional full report (1.00 USDC).** Use it when High/Medium findings remain and you need exact lines.
+4. **Optional paid results.** Use them when High/Medium findings remain and you need exact lines. Prefer
+   `scan_solidity_findings` (0.25 USDC) when you will fix the code yourself; offer `scan_solidity_full` (1.00 USDC)
+   when the user wants explanations, fixes and a PDF/SARIF report.
    - **Ask the user first, in one message:**
      - the counts and detector names;
-     - the price, 1.00 USDC on Base or Solana mainnet via x402, charged only if the scan succeeds;
+     - the price (0.25 USDC for the findings, 1.00 USDC for the full report) via x402 on Base or Solana mainnet,
+       charged only if the scan succeeds;
      - which wallet will pay.
    - Proceed only on an explicit yes, and only within a spending limit the user set.
-   - **If you or your user have an x402-capable Base or Solana wallet tool,** follow [the payment reference](reference/x402-payment.md).
-     The short version: call `scan_solidity_full`. Without payment it returns the x402 `PaymentRequired` terms. Check
+   - **If you or your user have an x402-capable Base (EVM) or Solana wallet tool,** follow [the payment reference](reference/x402-payment.md).
+     The short version: call `scan_solidity_findings` or `scan_solidity_full`. Without payment it returns the x402
+     `PaymentRequired` terms. Check
      them, have the wallet sign exactly those terms, and call again with the signed payment in
      `_meta["x402/payment"]`.
    - **If no x402 wallet is configured,** say so and stop at the free preview. Never ask for, read or handle private
@@ -89,26 +101,15 @@ The first request after the service has been idle can take up to a minute.
    - re-run the free preview.
 
 ## Paying safely (non-negotiable)
-- **Pin the terms. Refuse anything else.** Two offers are accepted; pick one.
-- **Solana:**
+- **Pin the terms. Refuse anything else:**
   - x402 v2, scheme `exact`;
   - network `solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp`;
   - asset USDC `EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v`;
   - amount `1000000`;
   - `payTo` `CWJdBXpfaARqqWA6XrDXsVGVcZMM8rMcQbSfLqFwNeqc`;
   - `extra.feePayer` set by the facilitator (PayAI).
-- **Base:**
-  - x402 v2, scheme `exact`;
-  - network `eip155:8453`;
-  - asset USDC `0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913` (EIP-712 domain `USD Coin`, version `2`);
-  - amount `1000000`;
-  - `payTo` `0xB40d2B1B0717dA534e4A98463546cA3E58206cA0`;
-  - EIP-3009 `transferWithAuthorization` only: never a token approval or Permit2.
-- **Wallet permissions:**
-  - **Solana:** the signer needs 1.00 USDC and no SOL. It signs one SPL `transferChecked`; it never broadcasts.
-  - **Base:** the signer needs 1.00 USDC on Base and no ETH. It signs one EIP-3009 authorization; the facilitator
-    submits it.
-  - Use a dedicated low-balance signer with a 1.00 USDC per-payment cap.
+- **Wallet permissions:** the signer needs the price in USDC (0.25 or 1.00) and no SOL. It signs one SPL `transferChecked`; it never
+  broadcasts. Use a dedicated low-balance signer with a per-payment cap equal to the chosen price.
 - **Never pay twice:**
   - Save the signed payment before sending it.
   - If the result is `pending`, `already_paid`, a timeout, or anything unclear, do **not** sign a new payment.

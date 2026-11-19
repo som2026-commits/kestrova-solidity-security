@@ -1,7 +1,7 @@
 {
   "name": "solidity-security-review",
-  "version": "0.3.0",
-  "description": "Solidity security review: free Slither preview for contracts your agent writes or deploys; optional full line-level report for 1 USDC on Base or Solana via x402 (asks first; recovers paid reports). Not an audit.",
+  "version": "0.4.0",
+  "description": "Solidity security review: free Slither preview for contracts your agent writes or deploys; optional paid findings (0.25 USDC) or full report (1 USDC) via x402 on Base or Solana (asks first; recovers paid reports). Not an audit.",
   "author": {
     "name": "Kestrova",
     "email": "kestrova.security@gmail.com"

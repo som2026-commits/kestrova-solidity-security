@@ -28,7 +28,7 @@ test("--setup lists every client and prints offline, without writing files", asy
   for (const k of Object.keys(CLIENTS)) {
     const c = await run(["--setup", k]);
     assert.equal(c.code, 0, k);
-    assert.match(c.out, /Never call scan_solidity_full/);
+    assert.match(c.out, /Never call scan_solidity_findings \(0\.25 USDC\) or\s+scan_solidity_full \(1 USDC\)/);
     assert.match(c.out, /not an audit/i);
   }
   assert.deepEqual(fs.readdirSync(CLI).sort(), before);
@@ -78,7 +78,9 @@ test("npm README: real commands only, honest pricing, no dead GitHub links", () 
   const md = fs.readFileSync(path.join(CLI, "README.md"), "utf8");
   assert.doesNotMatch(md, /github\.com\/som2026/);
   assert.match(md, /not an audit/i);
-  assert.match(md, /1\.00 USDC per scan via x402 on \*\*Base or Solana\*\*, charged only if the scan succeeds/);
+  assert.match(md, /0\.25 USDC via x402 on \*\*Base or Solana\*\*/);
+  assert.match(md, /1\.00 USDC via x402 on \*\*Base or Solana\*\*/);
+  assert.match(md, /Both paid options are charged only if the scan succeeds/);
   assert.match(md, new RegExp(`kestrova-scan@${VERSION.replace(/\./g, "\\.")}`));
   for (const flag of md.matchAll(/kestrova-scan[^`\n]*?(--[a-z-]+)/g))
     assert.ok(fs.readFileSync(path.join(CLI, "bin/kestrova-scan.mjs"), "utf8").includes(`"${flag[1]}"`), flag[1]);

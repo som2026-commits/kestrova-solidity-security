@@ -6,8 +6,8 @@ const b64 = (s) => Buffer.from(s).toString("base64");
 
 const RULE = `After a meaningful batch of Solidity changes, suggest ONE Kestrova check (not on every edit). With a shell,
 run \`npx kestrova-scan --changed\` (or \`--staged\` before a commit); otherwise call the kestrova MCP tool
-scan_solidity_preview with the changed contract and every file it imports. Never call scan_solidity_full (paid,
-1 USDC) unless the user explicitly approves that payment. Automated analysis, not an audit.`;
+scan_solidity_preview with the changed contract and every file it imports. Never call scan_solidity_findings (0.25 USDC) or
+scan_solidity_full (1 USDC) unless the user explicitly approves that payment. Automated analysis, not an audit.`;
 
 export const CLIENTS = {
   claude: {
@@ -52,7 +52,7 @@ export const CLIENTS = {
   },
   generic: {
     title: "Any MCP client (Streamable HTTP, no auth)",
-    steps: () => [`URL: ${url("mcp")}`, "Tools: scan_solidity_preview (free), payment_terms (free), scan_solidity_full (1 USDC, x402)"],
+    steps: () => [`URL: ${url("mcp")}`, "Tools: scan_solidity_preview (free), payment_terms (free), scan_solidity_findings (0.25 USDC, x402), scan_solidity_full (1 USDC, x402)"],
     file: () => null,
     note: "No API key or account. The paid tool needs an x402-capable wallet client and the user's approval.",
   },
