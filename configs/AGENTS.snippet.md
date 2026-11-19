@@ -28,7 +28,8 @@ Kestrova is a remote MCP server: Streamable HTTP, no API key, no account.
 - URL: `https://kestrova-api.onrender.com/mcp`
 - Tools:
   - `scan_solidity_preview` (free);
-  - `scan_solidity_full` (paid, 1 USDC);
+  - `scan_solidity_findings` (paid, 0.25 USDC: every finding with file and line, JSON);
+  - `scan_solidity_full` (paid, 1 USDC: the same plus an explanation and fix per finding, PDF and SARIF);
   - `payment_terms` (free).
 
 If the `kestrova` tools are not available, set the server up. Per-agent commands are in [README](https://github.com/som2026-commits/kestrova-solidity-security/blob/main/README.md). In
@@ -73,14 +74,18 @@ The first request after the service has been idle can take up to a minute.
    - Use the detector names (`reentrancy-eth`, `tx-origin`, `unchecked-send`, `arbitrary-send-eth`, ...) to find and
      fix clear issues yourself.
    - Re-run the preview to confirm the count drops.
-4. **Optional full report (1.00 USDC).** Use it when High/Medium findings remain and you need exact lines.
+4. **Optional paid results.** Use them when High/Medium findings remain and you need exact lines. Prefer
+   `scan_solidity_findings` (0.25 USDC) when you will fix the code yourself; offer `scan_solidity_full` (1.00 USDC)
+   when the user wants explanations, fixes and a PDF/SARIF report.
    - **Ask the user first, in one message:**
      - the counts and detector names;
-     - the price, 1.00 USDC via x402 on Base or Solana mainnet, charged only if the scan succeeds;
+     - the price (0.25 USDC for the findings, 1.00 USDC for the full report) via x402 on Base or Solana mainnet,
+       charged only if the scan succeeds;
      - which wallet will pay.
    - Proceed only on an explicit yes, and only within a spending limit the user set.
    - **If you or your user have an x402-capable Base (EVM) or Solana wallet tool,** follow [the payment reference](https://github.com/som2026-commits/kestrova-solidity-security/blob/main/solidity-security-review/skills/solidity-security-review/reference/x402-payment.md).
-     The short version: call `scan_solidity_full`. Without payment it returns the x402 `PaymentRequired` terms. Check
+     The short version: call `scan_solidity_findings` or `scan_solidity_full`. Without payment it returns the x402
+     `PaymentRequired` terms. Check
      them, have the wallet sign exactly those terms, and call again with the signed payment in
      `_meta["x402/payment"]`.
    - **If no x402 wallet is configured,** say so and stop at the free preview. Never ask for, read or handle private
@@ -101,8 +106,8 @@ The first request after the service has been idle can take up to a minute.
   - amount `1000000`;
   - `payTo` `CWJdBXpfaARqqWA6XrDXsVGVcZMM8rMcQbSfLqFwNeqc`;
   - `extra.feePayer` set by the facilitator (PayAI).
-- **Wallet permissions:** the signer needs 1.00 USDC and no SOL. It signs one SPL `transferChecked`; it never
-  broadcasts. Use a dedicated low-balance signer with a 1.00 USDC per-payment cap.
+- **Wallet permissions:** the signer needs the price in USDC (0.25 or 1.00) and no SOL. It signs one SPL `transferChecked`; it never
+  broadcasts. Use a dedicated low-balance signer with a per-payment cap equal to the chosen price.
 - **Never pay twice:**
   - Save the signed payment before sending it.
   - If the result is `pending`, `already_paid`, a timeout, or anything unclear, do **not** sign a new payment.

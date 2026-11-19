@@ -3,7 +3,8 @@
 When your coding agent writes, changes or prepares to deploy a Solidity contract, Kestrova runs a **free** Slither
 static-analysis preview. The agent explains the results without overclaiming, and offers an **optional** full
 line-level report for **1 USDC**, only after you approve it: agents pay via [x402](https://x402.org) with USDC on
-**Base or Solana**; people can also buy it on the website with a Base wallet.
+**Base or Solana**; people can also buy it on the website with a Base wallet. Agents that only need the findings (file,
+line, detector) can buy them for **0.25 USDC**.
 
 - **Remote MCP server:** `https://kestrova-api.onrender.com/mcp` (Streamable HTTP, no API key, no account).
 - **Official MCP Registry name:** `com.onrender.kestrova-api/kestrova` (the older `io.github.som2026-commits/kestrova`
@@ -57,9 +58,12 @@ These use each tool's standard extension points; they are not official integrati
 
 - **`scan_solidity_preview` (free):** severity counts and High/Medium detector names. Up to 15 KB / 10 files;
   rate-limited per client (a few scans per hour).
-- **`scan_solidity_full` (paid, 1.00 USDC):** every finding with detector, impact, confidence and file/line locations.
-  Without a payment it returns the x402 terms; it never scans or charges then. You are charged only if the scan
-  succeeds.
+- **`scan_solidity_findings` (paid, 0.25 USDC, agent tier):** every finding with detector, impact, confidence, file/line
+  locations and Slither's description, as JSON.
+- **`scan_solidity_full` (paid, 1.00 USDC):** the same findings plus a plain-English explanation and fix for each, and
+  PDF and SARIF report files.
+- Both paid tools: without a payment they return the x402 terms and never scan or charge. You are charged only if the
+  scan succeeds.
 - **`payment_terms` (free):** price, recipient, network, fee payer, wallet requirements, outcomes and recovery.
 
 **Guide:** [How an AI agent pays for a Solidity security scan with x402](docs/agent-pays-for-a-solidity-scan-with-x402.md): free preview, reading the 402 terms, paying 1 USDC on Base or Solana, MCP flow, safety rules.
@@ -76,7 +80,12 @@ take up to a minute.
 
 ## Payment
 
-The free preview never needs a wallet. The optional full report costs **1.00 USDC** and can be bought in two ways.
+The free preview never needs a wallet. Two optional paid results:
+- **Findings, 0.25 USDC** (`250000` base units): `POST /scan/findings` or MCP `scan_solidity_findings`, x402 only.
+- **Full report, 1.00 USDC** (`1000000` base units): `POST /scan` or MCP `scan_solidity_full`; adds an explanation and
+  fix per finding, PDF and SARIF. It can be bought in two ways (below).
+
+Both use the same networks, recipients, replay protection and free wallet-signed recovery.
 
 ### For AI agents and scripts: x402 API (`POST /scan` or MCP `scan_solidity_full`), Base or Solana
 
@@ -85,7 +94,7 @@ The free preview never needs a wallet. The optional full report costs **1.00 USD
 | Protocol | x402 v2, scheme `exact` (HTTP `PAYMENT-REQUIRED` / `PAYMENT-SIGNATURE`; MCP `_meta["x402/payment"]`) | same |
 | Network | `eip155:8453` | `solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp` |
 | Asset | native USDC `0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913` | USDC `EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v` |
-| Price | exactly `1000000` base units (1.00 USDC) | exactly `1000000` base units (1.00 USDC) |
+| Price | exactly `1000000` (1.00 USDC, full report) or `250000` (0.25 USDC, findings) base units | same |
 | Pay to | `0xB40d2B1B0717dA534e4A98463546cA3E58206cA0` | `CWJdBXpfaARqqWA6XrDXsVGVcZMM8rMcQbSfLqFwNeqc` |
 | Wallet signs | one EIP-3009 `transferWithAuthorization` (no token approval) | one SPL `transferChecked`; never broadcasts |
 | Network fee | paid by the PayAI facilitator; the buyer needs **no ETH** | paid by the PayAI facilitator (`extra.feePayer`); the buyer needs **no SOL** |

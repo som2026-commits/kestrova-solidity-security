@@ -12,13 +12,14 @@ The only accepted terms are below. Compare every field; if any differs, refuse a
 | `accepts[].scheme` | `exact` |
 | `accepts[].network` | `solana:5eykt4UsFv8P8NJdTREpY1vzqKqZKvdp` (Solana mainnet) |
 | `accepts[].asset` | `EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v` (USDC) |
-| `accepts[].amount` | `1000000` (1.00 USDC) |
+| `accepts[].amount` | `250000` (0.25 USDC) for `scan_solidity_findings` / `POST /scan/findings`; `1000000` (1.00 USDC) for `scan_solidity_full` / `POST /scan` |
 | `accepts[].payTo` | `CWJdBXpfaARqqWA6XrDXsVGVcZMM8rMcQbSfLqFwNeqc` |
 | `accepts[].extra.feePayer` | the facilitator's fee payer (PayAI); the buyer pays no SOL |
 
 ## Over MCP
 
-1. Call `tools/call` with `{"name": "scan_solidity_full", "arguments": {"sources": {...}}}` and no payment.
+1. Call `tools/call` with `{"name": "scan_solidity_findings"` (0.25 USDC) or `"scan_solidity_full"` (1.00 USDC)`,
+   "arguments": {"sources": {...}}}` and no payment.
    - The result has `isError: true`.
    - Its `structuredContent` is the x402 `PaymentRequired` object, with `x402Version` and `accepts`.
    - Nothing is scanned and nothing is charged.

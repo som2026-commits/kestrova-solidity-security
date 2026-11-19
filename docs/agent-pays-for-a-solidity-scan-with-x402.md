@@ -68,7 +68,9 @@ curl -s -o /dev/null -D - $B/scan -H 'content-type: application/json' -d @body.j
       "payTo": "0xB40d2B1B0717dA534e4A98463546cA3E58206cA0" } ] }
 ```
 
-`1000000` base units means 1.00 USDC:
+`1000000` base units means 1.00 USDC. For the cheaper findings-only result (every finding with file and line, JSON,
+no explanation or report files), call `POST $B/scan/findings` instead: the same flow, with `"amount": "250000"`
+(0.25 USDC). The 1.00 USDC terms below:
 - on **Solana mainnet**, settled by the PayAI facilitator;
 - on **Base mainnet** (native USDC, EIP-3009), settled by the Coinbase CDP facilitator.
 
@@ -106,6 +108,7 @@ claude mcp add --transport http kestrova https://kestrova-api.onrender.com/mcp
 |---|---|---|
 | `scan_solidity_preview` | free | step 1 |
 | `payment_terms` | free | recipients, networks and step-by-step payment for both rails |
+| `scan_solidity_findings` | 0.25 USDC | Every finding with file/line and Slither's description (JSON). Same payment flow as `scan_solidity_full`. |
 | `scan_solidity_full` | 1 USDC | Without `_meta['x402/payment']` it returns the x402 PaymentRequired terms and does not scan. Call it again with the signed payment in `_meta['x402/payment']`; the settlement is in `result._meta['x402/payment-response']`. |
 
 ## Safety rules for agents (keep them if you adapt this)
