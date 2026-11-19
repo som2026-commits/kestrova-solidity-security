@@ -93,13 +93,25 @@ with a wallet signature at `POST /scan/recover`.
 
 ## Troubleshooting
 
-If `npx kestrova-scan` or `kestrova-scan` prints `not found` or `Permission denied` (seen on Android/Termux), run the
-CLI through Node directly; it needs no executable bit:
+**`sh: 1: kestrova-scan: not found` (seen on Android/Termux).** The shell prints this both when the command is not on
+`PATH` and when its interpreter line `#!/usr/bin/env node` cannot be executed (Termux has no `/usr/bin/env`; the
+`termux-exec` package normally redirects it). Run the CLI through Node instead; this needs neither the interpreter line
+nor an executable bit and works the same on Linux, macOS and Termux:
+
+```sh
+npx --yes --package=kestrova-scan@latest -c 'node "$(command -v kestrova-scan)" --help'
+```
+
+Or install it once and call Node directly:
 
 ```sh
 npm install -g kestrova-scan
 node "$(npm root -g)/kestrova-scan/bin/kestrova-scan.mjs" --help
 ```
+
+**An old version number.** `npx` keeps one cache folder per package spec under `~/.npm/_npx/`, so a file found there
+by hand can be an older release. `--version` prints the version of the file you ran. Pin the version
+(`kestrova-scan@latest` or an exact version) or clear that cache with `rm -rf ~/.npm/_npx` (cache only).
 
 ## Privacy
 
