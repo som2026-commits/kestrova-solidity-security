@@ -68,7 +68,7 @@ claude plugin install solidity-security-review@kestrova
 - name: Kestrova (free preview of changed contracts)
   run: |
     set +e
-    npx --yes kestrova-scan@0.1.5 --changed "origin/${{ github.base_ref }}" --yes --summary-md "$GITHUB_STEP_SUMMARY"
+    npx --yes kestrova-scan@0.1.6 --changed "origin/${{ github.base_ref }}" --yes --summary-md "$GITHUB_STEP_SUMMARY"
     code=$?
     if [ "$code" = 3 ]; then echo "::warning::Kestrova unavailable or rate-limited; not blocking"; exit 0; fi
     exit $code
@@ -90,6 +90,16 @@ Both paid options are charged only if the scan succeeds.
 This CLI contains **no payment code** and never pays. `kestrova-scan File.sol --bundle vault.json` writes exactly the
 sources a paid scan would analyse. If a payment's outcome is ever unclear, don't pay again: recover the report free
 with a wallet signature at `POST /scan/recover`.
+
+## Troubleshooting
+
+If `npx kestrova-scan` or `kestrova-scan` prints `not found` or `Permission denied` (seen on Android/Termux), run the
+CLI through Node directly; it needs no executable bit:
+
+```sh
+npm install -g kestrova-scan
+node "$(npm root -g)/kestrova-scan/bin/kestrova-scan.mjs" --help
+```
 
 ## Privacy
 
