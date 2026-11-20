@@ -302,3 +302,22 @@ test("--compare-reports works offline from files", async () => {
   assert.equal(await main(["--compare-reports", "a.json", "b.json", "--fail-on", "medium"], { ...c, cwd: dir, fetchImpl: () => { throw new Error("no network"); } }), 1);
   assert.match(c.text(), /NEW\s+Medium\s+tx-origin src\/V\.sol#5-5/);
 });
+
+test("CI summary: a one-click paid-result hint appears only for open High/Medium findings", async () => {
+  const { hasOpenHighMedium, paidHintMarkdown, renderPreviewMarkdown } = await import("../lib/compare.mjs");
+  const url = "https://kestrova-api.onrender.com/";
+  assert.equal(hasOpenHighMedium({ items: [{ status: "NEW", severity: "High" }] }), true);
+  assert.equal(hasOpenHighMedium({ items: [{ status: "EXISTING", severity: "Medium" }] }), true);
+  assert.equal(hasOpenHighMedium({ items: [{ status: "RESOLVED", severity: "High" }] }), false);
+  assert.equal(hasOpenHighMedium({ items: [{ status: "NEW", severity: "Informational" }] }), false);
+  assert.equal(paidHintMarkdown(url, false), "");
+  const hint = paidHintMarkdown(url, true);
+  assert.match(hint, /https:\/\/kestrova-api\.onrender\.com\/scanner\?src=ci-summary/);
+  assert.match(hint, /only with your approval/);
+  assert.match(hint, /never pays/);
+  const withHigh = renderPreviewMarkdown({ compiler: "0.8.38", counts: { High: 1 }, detectors: ["reentrancy-eth"] }, url);
+  assert.match(withHigh, /`reentrancy-eth`/);
+  assert.match(withHigh, /scanner\?src=ci-summary/);
+  const clean = renderPreviewMarkdown({ compiler: "0.8.38", counts: { Informational: 2 }, detectors: [] }, url);
+  assert.doesNotMatch(clean, /scanner\?src=ci-summary/);
+});

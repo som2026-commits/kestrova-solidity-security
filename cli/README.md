@@ -68,7 +68,7 @@ claude plugin install solidity-security-review@kestrova
 - name: Kestrova (free preview of changed contracts)
   run: |
     set +e
-    npx --yes kestrova-scan@0.1.6 --changed "origin/${{ github.base_ref }}" --yes --summary-md "$GITHUB_STEP_SUMMARY"
+    npx --yes kestrova-scan@0.1.7 --changed "origin/${{ github.base_ref }}" --yes --summary-md "$GITHUB_STEP_SUMMARY"
     code=$?
     if [ "$code" = 3 ]; then echo "::warning::Kestrova unavailable or rate-limited; not blocking"; exit 0; fi
     exit $code

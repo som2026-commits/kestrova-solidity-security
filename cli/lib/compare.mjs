@@ -166,3 +166,37 @@ export function renderMarkdown(title, result, scopeLines = []) {
   out.push("", "_Automated static analysis by Kestrova (Slither), not an audit. Free previews list High/Medium detector names only._");
   return out.join("\n") + "\n";
 }
+
+const OPEN_STATUSES = new Set(["NEW", "EXISTING"]);
+
+/** True when a comparison still has a High or Medium finding that is new or still present. */
+export function hasOpenHighMedium(result) {
+  return (result?.items || []).some((i) => OPEN_STATUSES.has(i.status) && /^(high|medium)$/i.test(i.severity || ""));
+}
+
+/** One-click path to the optional paid result, for CI summaries. Empty unless there is something to fix. */
+export function paidHintMarkdown(url, show) {
+  if (!show) return "";
+  const base = String(url || "").replace(/\/+$/, "");
+  return [
+    "",
+    "**Need the exact lines and fixes?** (optional, paid, only with your approval)",
+    `- In the browser: upload the flagged contract at ${base}/scanner?src=ci-summary for every finding with file, line`
+      + " and a fix (1 USDC with a Base wallet).",
+    "- From an AI agent with an x402 wallet: `scan_solidity_findings` (0.25 USDC, every finding with file and line) or"
+      + " `scan_solidity_full` (1 USDC, adds fixes, PDF and SARIF) on the Kestrova MCP server.",
+    "- Charged only if the scan succeeds. This check itself is free and never pays.",
+    "",
+  ].join("\n");
+}
+
+/** Markdown summary of a plain (non-comparison) preview. */
+export function renderPreviewMarkdown(r, url) {
+  const counts = Object.entries(r?.counts || {}).map(([k, v]) => `${k}: ${v}`).join(", ") || "no findings";
+  const dets = r?.detectors || [];
+  const out = ["### Kestrova preview", "", `- Compiler: ${r?.compiler || "?"}`, `- Counts: ${counts}`];
+  if (dets.length) out.push(`- High/Medium detectors: ${dets.map((d) => `\`${d}\``).join(", ")}`);
+  const worst = Object.keys(r?.counts || {}).some((k) => /^(high|medium)$/i.test(k) && r.counts[k] > 0);
+  out.push("", "_Automated static analysis by Kestrova (Slither), not an audit. Zero findings does not mean a contract is safe._");
+  return out.join("\n") + "\n" + paidHintMarkdown(url, worst);
+}

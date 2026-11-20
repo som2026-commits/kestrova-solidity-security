@@ -8,7 +8,8 @@ import { fileURLToPath } from "node:url";
 import { ChangeError, partiallyStaged, planChanged, resolveBase, changedSolidity } from "../lib/changes.mjs";
 import { CollectError, checkLimits, collect } from "../lib/collect.mjs";
 import { ServiceError, VERSION, preview, serviceUrl, terms } from "../lib/client.mjs";
-import { RANK, compareReports, comparePreviews, gate, renderMarkdown, renderText } from "../lib/compare.mjs";
+import { RANK, compareReports, comparePreviews, gate, hasOpenHighMedium, paidHintMarkdown, renderMarkdown,
+  renderPreviewMarkdown, renderText } from "../lib/compare.mjs";
 import { HookError, installHook, uninstallHook } from "../lib/hook.mjs";
 import { toSarif } from "../lib/sarif.mjs";
 import { setupText } from "../lib/setup.mjs";
@@ -214,6 +215,7 @@ async function plainFlow(c) {
     if (r.note) out(r.note);
     out("Exact lines: optional, 0.25 USDC (findings) or 1 USDC (full report with fixes, PDF, SARIF) via x402, only with your approval (kestrova-scan --terms).");
   }
+  c.md(renderPreviewMarkdown(r, c.url));
   const worst = Math.max(0, ...Object.keys(r.counts || {}).map((k) => RANK[k.toLowerCase()] || 0));
   return RANK[o.failOn] && worst >= RANK[o.failOn] ? 1 : 0;
 }
@@ -276,7 +278,7 @@ async function changedFlow(c) {
   const title = `Kestrova ${mode === "staged" ? "staged" : "changed-file"} check`;
   if (o.json) out(JSON.stringify({ base: plan.base, mode, scope, ...result }, null, 2));
   else out(renderText(title, result, scope));
-  c.md(renderMarkdown(title, result, scope));
+  c.md(renderMarkdown(title, result, scope) + paidHintMarkdown(c.url, hasOpenHighMedium(result)));
 
   const blocking = gate(result, o.failOn);
   if (o.hook) {
@@ -326,7 +328,7 @@ async function baselineFlow(c) {
   if (JSON.stringify(saved.targets || []) !== JSON.stringify(o.targets))
     res = { ...res, items: res.items.map((i) => (i.status === "RESOLVED" ? { ...i, status: "UNKNOWN", detail: "different scope than the baseline" } : i)) };
   if (o.json) out(JSON.stringify({ scope, ...res }, null, 2)); else out(renderText("Kestrova baseline comparison", res, scope));
-  c.md(renderMarkdown("Kestrova baseline comparison", res, scope));
+  c.md(renderMarkdown("Kestrova baseline comparison", res, scope) + paidHintMarkdown(c.url, hasOpenHighMedium(res)));
   return gate(res, o.failOn).length ? 1 : 0;
 }
 
